@@ -7,6 +7,13 @@
 // It never receives engine source, the held-out corpus, or tool access.
 //
 //   node harness/discover.ts [--rounds 10] [--model claude-opus-5-5] [--run-id ID]
+//   node harness/discover.ts --provider meta [--model muse-spark-1.3] [--rounds 10]
+//        [--max-output-tokens 16384] [--effort high|medium|low|off] [--timeout-ms 1200000]
+//        [--max-retries 2] [--run-id muse-...]     (key: MODEL_API_KEY env var only)
+//
+// --provider meta replaces ONLY the model call with a stateless HTTPS Messages request
+// (harness/meta-provider.ts); the prompt, experiments, QuickJS validation and freezing are shared.
+// The default provider remains the Claude CLI path below, unchanged.
 //
 // Private raw logs: private/discovery/<runId>/ (git-ignored; contain session ids/paths)
 // Public sanitized trace: artifacts/discovery/<runId>.json
@@ -19,16 +26,26 @@ import { simulate, validateLayout } from "../engine/reference.ts";
 import { compareTraces, type TraceComparison } from "../engine/compare.ts";
 import type { Action, Layout, Observation } from "../engine/types.ts";
 import { runCandidateNode } from "./sandbox-node.ts";
+import { callMeta, metaRequestShape, META_KEY_ENV, type MetaConfig } from "./meta-provider.ts";
 
 const arg = (name: string, def: string) => {
   const i = process.argv.indexOf(`--${name}`);
   return i >= 0 ? process.argv[i + 1] : def;
 };
-const MAX_ROUNDS = Number(arg("rounds", "10"));
-const MODEL = arg("model", "claude-opus-5-5");
+const PROVIDER = arg("provider", "claude");
+if (PROVIDER !== "claude" && PROVIDER !== "meta") throw new Error(`--provider must be claude or meta, got ${PROVIDER}`);
+const IS_META = PROVIDER === "meta";
+const boundedInt = (name: string, def: number, min: number, max: number) => {
+  const v = Number(arg(name, String(def)));
+  if (!Number.isInteger(v) || v < min || v > max) throw new Error(`--${name} must be an integer in [${min}, ${max}]`);
+  return v;
+};
+const MAX_ROUNDS = IS_META ? boundedInt("rounds", 10, 1, 20) : Number(arg("rounds", "10"));
+const MODEL = arg("model", IS_META ? "muse-spark-1.3" : "claude-opus-5-5");
 const MAX_EXPERIMENTS = 6;
 const MAX_ACTIONS = 12;
-const RUN_ID = arg("run-id", `run-${new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19)}`);
+const STAMP = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
+const RUN_ID = arg("run-id", IS_META ? `muse-${STAMP}` : `run-${STAMP}`);
 const CLAUDE_BIN = arg("claude-bin", join(process.env.HOME ?? "", ".local/bin/claude"));
 const TIMEOUT_MS = 20 * 60 * 1000;
 
@@ -39,6 +56,26 @@ const [, systemPart, userPart] = template.split(/=== (?:SYSTEM|USER) ===\n/);
 const SYSTEM_PROMPT = systemPart.trim();
 
 const privDir = join("private", "discovery", RUN_ID);
+
+let META: MetaConfig | null = null;
+let META_KEY = "";
+if (IS_META) {
+  // Preflight before anything is written: muse-* id, never clobber, key present (value never logged).
+  if (!/^muse-[A-Za-z0-9._-]{1,80}$/.test(RUN_ID)) throw new Error(`--provider meta requires a run id matching muse-*, got ${RUN_ID}`);
+  const taken = [privDir, `artifacts/discovery/${RUN_ID}.json`, `artifacts/replica/${RUN_ID}.js`, `artifacts/replica/${RUN_ID}.frozen.json`].filter((p) => existsSync(p));
+  if (taken.length) throw new Error(`refusing to clobber existing run ${RUN_ID}: ${taken.join(", ")}`);
+  const effort = arg("effort", "high");
+  if (!["high", "medium", "low", "off"].includes(effort)) throw new Error("--effort must be high, medium, low or off");
+  META = {
+    model: MODEL,
+    maxTokens: boundedInt("max-output-tokens", 16384, 1024, 65536),
+    effort: effort === "off" ? null : (effort as MetaConfig["effort"]),
+    timeoutMs: boundedInt("timeout-ms", 20 * 60 * 1000, 10_000, 30 * 60 * 1000),
+    maxRetries: boundedInt("max-retries", 2, 0, 3),
+  };
+  META_KEY = process.env[META_KEY_ENV] ?? "";
+  if (!META_KEY) throw new Error(`${META_KEY_ENV} is not set; the meta provider reads its key from the environment only`);
+}
 mkdirSync(privDir, { recursive: true });
 mkdirSync("artifacts/discovery", { recursive: true });
 
@@ -226,7 +263,8 @@ function savePublic(status: string) {
     runId: RUN_ID,
     status,
     model: MODEL,
-    cli: { binary: "claude (Claude Code CLI)", flags: FLAGS, env: "scrubbed: only PATH HOME USER LOGNAME SHELL LANG LC_ALL TERM TMPDIR passed", cwd: "fresh empty mkdtemp directory per round, deleted afterwards" },
+    ...(IS_META ? { provider: "meta", transport: metaRequestShape(META!) } : {}),
+    ...(IS_META ? {} : { cli: { binary: "claude (Claude Code CLI)", flags: FLAGS, env: "scrubbed: only PATH HOME USER LOGNAME SHELL LANG LC_ALL TERM TMPDIR passed", cwd: "fresh empty mkdtemp directory per round, deleted afterwards" } }),
     templateSha256: sha(template),
     schemaSha256: sha(schema),
     maxRounds: MAX_ROUNDS,
@@ -239,21 +277,8 @@ function savePublic(status: string) {
   writeFileSync(`artifacts/discovery/${RUN_ID}.json`, JSON.stringify(pub, null, 1));
 }
 
-for (let round = 1; round <= MAX_ROUNDS; round++) {
-  const prompt = buildPrompt(round);
-  writeFileSync(join(privDir, `round-${round}.prompt.txt`), prompt);
-  const rec: RoundRecord = {
-    round,
-    startedAt: new Date().toISOString(),
-    durationMs: 0,
-    promptSha256: sha(prompt),
-    promptChars: prompt.length,
-    exitCode: null,
-    experimentIds: [],
-    rejectedExperiments: [],
-  };
-  console.log(`[${RUN_ID}] round ${round}: prompt ${prompt.length} chars -> ${MODEL}`);
-  const t0 = Date.now();
+/** Default provider: Claude CLI process; parses its stream-json events into the round record. */
+async function claudeRound(prompt: string, round: number, rec: RoundRecord, t0: number): Promise<boolean> {
   let res = await callModel(prompt, round);
   let attempt = 1;
   while ((res.code !== 0 || !res.stdout.includes('"type":"result"')) && attempt < 2) {
@@ -295,7 +320,46 @@ for (let round = 1; round <= MAX_ROUNDS; round++) {
   }
   if (!result || result.is_error) {
     rec.failure = `model call failed (exit ${res.code}): ${res.stderr.slice(0, 300)}`;
+    return false;
+  }
+  return true;
+}
+
+/** --provider meta: one stateless HTTPS Messages call (bounded retries inside callMeta). */
+async function metaRound(prompt: string, round: number, rec: RoundRecord, t0: number): Promise<boolean> {
+  const reply = await callMeta(SYSTEM_PROMPT, prompt, META!, META_KEY);
+  rec.durationMs = Date.now() - t0;
+  writeFileSync(join(privDir, `round-${round}.responses.json`), JSON.stringify(reply.rawAttempts, null, 1));
+  rec.result = reply.result;
+  if (!reply.ok) {
+    rec.failure = reply.failure;
+    return false;
+  }
+  rec.responseText = reply.text;
+  return true;
+}
+
+let failed = false;
+try {
+for (let round = 1; round <= MAX_ROUNDS; round++) {
+  const prompt = buildPrompt(round);
+  writeFileSync(join(privDir, `round-${round}.prompt.txt`), prompt);
+  const rec: RoundRecord = {
+    round,
+    startedAt: new Date().toISOString(),
+    durationMs: 0,
+    promptSha256: sha(prompt),
+    promptChars: prompt.length,
+    exitCode: null,
+    experimentIds: [],
+    rejectedExperiments: [],
+  };
+  console.log(`[${RUN_ID}] round ${round}: prompt ${prompt.length} chars -> ${MODEL}`);
+  const t0 = Date.now();
+  const ok = IS_META ? await metaRound(prompt, round, rec, t0) : await claudeRound(prompt, round, rec, t0);
+  if (!ok) {
     rounds.push(rec);
+    failed = true;
     savePublic("failed");
     console.log("  " + rec.failure);
     break;
@@ -362,10 +426,17 @@ for (let round = 1; round <= MAX_ROUNDS; round++) {
   console.log(`  ${rec.durationMs}ms; experiments +${rec.experimentIds.length} (${rec.rejectedExperiments.length} rejected); code ${cv ? `v${cv.version} ${cv.validation.exact}/${cv.validation.experiments}` : "none"}; final=${rec.final}`);
   if (rec.final && codeVersions.length) break;
 }
+} catch (e) {
+  failed = true;
+  const msg = (e as Error)?.stack ?? String(e);
+  writeFileSync(join(privDir, "uncaught-error.txt"), IS_META ? msg.split(META_KEY).join("<redacted>") : msg);
+  const publicMessage = String((e as Error)?.message ?? e);
+  console.log(`  uncaught error: ${IS_META ? publicMessage.split(META_KEY).join("<redacted>") : publicMessage}`);
+}
 
-const status = codeVersions.length ? "completed" : "no-code";
+const status = failed ? "failed" : codeVersions.length ? "completed" : "no-code";
 savePublic(status);
-if (codeVersions.length) {
+if (!failed && codeVersions.length) {
   const final = codeVersions[codeVersions.length - 1];
   mkdirSync("artifacts/replica", { recursive: true });
   writeFileSync(`artifacts/replica/${RUN_ID}.js`, final.source);
@@ -375,3 +446,5 @@ if (codeVersions.length) {
   );
 }
 console.log(`[${RUN_ID}] ${status}. Public trace: artifacts/discovery/${RUN_ID}.json`);
+
+if (failed || !codeVersions.length) process.exitCode = 1;
