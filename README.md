@@ -16,6 +16,12 @@ claim: general equivalence. See [Limitations](#limitations).
 
 ## The site
 
+**[Open the live exhibit](https://njliwenlu.github.io/lantern-hall/)** · hosted publicly on GitHub Pages.
+
+Start with **Watch the discovery**, follow the two recorded experiments, then **Try a prediction**.
+Predict opens with a prepared room: **Predict with the AI engine**, then **Run original & compare**.
+Custom room and move controls are available under **Customize the room & moves**.
+
 A static single-page app (Vite + React, relative `base: "./"`). It has no backend, no model API
 and no server-side code execution.
 
