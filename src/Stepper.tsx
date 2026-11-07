@@ -10,8 +10,7 @@ export interface Auto {
 export function useAutoplay(count: number, step: number, setStep: (n: number) => void): Auto {
   const [playing, setPlaying] = useState(false);
   useEffect(() => {
-    if (count > 0 && !initialParams.manualClock) setPlaying(true);
-    else setPlaying(false);
+    setPlaying(false);
   }, [count]);
   useEffect(() => {
     if (!playing || count <= 0) return;
@@ -49,14 +48,15 @@ export function Stepper({
   return (
     <div className="lh-stepper">
       {auto && (
-        <button className="lh-play" onClick={auto.toggle} aria-label={auto.playing ? "pause" : "play"}>
-          {auto.playing ? "❚❚" : "▶"}
+        <button className="lh-play" style={{ width: "auto", padding: "0 16px", borderRadius: 4 }} onClick={auto.toggle} aria-label={auto.playing ? "pause" : "play"}>
+          {auto.playing ? "Pause" : step >= count - 1 ? "Replay" : "▶ Play moves"}
         </button>
       )}
-      <button className="lh-stepbtn" onClick={() => setStep(Math.max(0, step - 1))} disabled={step === 0} aria-label="previous step">
-        ‹
+      <button className="lh-stepbtn" style={{ width: "auto", padding: "0 10px", borderRadius: 4 }} onClick={() => setStep(Math.max(0, step - 1))} disabled={step === 0} aria-label="previous step">
+        ← Back
       </button>
-      <div className="lh-ticks">
+      <span className="lh-small" aria-live="polite">{step === 0 ? "Starting position" : `Move ${step} of ${count - 1}`}</span>
+      <details className="lh-playback-details"><summary className="lh-small">Jump to a move</summary><div className="lh-ticks">
         {Array.from({ length: count }, (_, i) => (
           <button
             key={i}
@@ -67,9 +67,9 @@ export function Stepper({
             {labels?.[i] ?? i}
           </button>
         ))}
-      </div>
-      <button className="lh-stepbtn" onClick={() => setStep(Math.min(count - 1, step + 1))} disabled={step >= count - 1} aria-label="next step">
-        ›
+      </div></details>
+      <button className="lh-stepbtn" style={{ width: "auto", padding: "0 10px", borderRadius: 4 }} onClick={() => setStep(Math.min(count - 1, step + 1))} disabled={step >= count - 1} aria-label="next step">
+        Next →
       </button>
     </div>
   );

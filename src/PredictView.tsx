@@ -126,12 +126,14 @@ export function PredictView({ present }: { present: boolean }) {
   const [tool, setTool] = useState<Tool>("wall");
   const [color, setColor] = useState<Color>("red");
   const [editing, setEditing] = useState(false);
+  const [customizing, setCustomizing] = useState(false);
   const [phase, setPhase] = useState<Phase>("compose");
   const [sealed, setSealed] = useState<Sealed | null>(null);
   const [truth, setTruth] = useState<Observation[] | null>(null);
   const [cmp, setCmp] = useState<TraceComparison | null>(null);
   const [step, setStep] = useState(0);
   const invalid = validateLayout(layout);
+  const customSetup = JSON.stringify(layout) !== JSON.stringify(p0.layout) || JSON.stringify(actions) !== JSON.stringify(p0.actions);
   const code = frozenCode;
   const sealAttempt = useRef(0);
   useEffect(() => () => { sealAttempt.current++; }, []);
@@ -192,18 +194,18 @@ export function PredictView({ present }: { present: boolean }) {
     const onKey = (e: KeyboardEvent) => {
       if ((e.target as HTMLElement)?.closest("input,textarea,select")) return;
       const map: Record<string, Action> = { ArrowUp: "N", ArrowDown: "S", ArrowLeft: "W", ArrowRight: "E", w: "N", s: "S", a: "W", d: "E" };
-      if (map[e.key] && phase === "compose") {
+      if (customizing && map[e.key] && phase === "compose") {
         e.preventDefault();
         push(map[e.key]);
-      } else if (e.key === "Backspace" && phase === "compose") setActions((q) => q.slice(0, -1));
-      else if (e.key === "Enter") {
+      } else if (customizing && e.key === "Backspace" && phase === "compose") setActions((q) => q.slice(0, -1));
+      else if (e.key === "Enter" && !(e.target as HTMLElement)?.closest("button,summary,a")) {
         if (phase === "compose") seal();
         else if (phase === "sealed") reveal();
       }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [phase, push, seal, reveal]);
+  }, [phase, push, seal, reveal, customizing]);
 
   useEffect(() => {
     hooks.predict = { seal, reveal, reset, setStep, loadPreset, phase: () => phase };
@@ -243,9 +245,35 @@ export function PredictView({ present }: { present: boolean }) {
         <div className="lh-kicker">III · Predict</div>
         <h2 className="lh-h2">Your experiment.</h2>
         <p className="lh-lede">
-          Choose a room and queue your moves. Model-written engine v{code.version} predicts first; its trace is locked with a hash before the original runs.
+          Can the AI’s rebuilt engine predict this room? We’ve prepared a room and {actions.length} moves for you. Start below—no setup needed.
         </p>
 
+        <div className="lh-actions">
+          {phase === "compose" && (
+            <button className="lh-primary" onClick={seal} disabled={!!invalid}>
+              1. Predict with the AI engine
+            </button>
+          )}
+          {phase === "sealing" && <button className="lh-primary" disabled>Computing the prediction…</button>}
+          {phase === "sealed" && (
+            <button className="lh-primary is-gold" onClick={reveal}>
+              2. Run original &amp; compare
+            </button>
+          )}
+          {phase === "revealed" && (
+            <button className="lh-secondary" onClick={reset}>
+              Start a new prediction
+            </button>
+          )}
+        </div>
+        <p className="lh-guidance" aria-live="polite">
+          {phase === "compose" ? "The AI’s prediction is sealed first. Then you’ll run the original and compare them." : phase === "sealing" ? "Computing and locking the prediction…" : phase === "sealed" ? "Prediction locked. Now run the original to see whether they agree." : "Both engines have run. Play the comparison to watch the same moves side by side."}
+        </p>
+        <p className="lh-small">{customSetup ? "Custom setup" : "Ready to try: The Red Gate"} · {actions.length} planned moves</p>
+        {customSetup && phase === "compose" && <button className="lh-secondary" onClick={() => { loadPreset(p0.id); setEditing(false); }}>Reset to default</button>}
+        <details className="lh-advanced" open={customizing} onToggle={(e) => { const open = e.currentTarget.open; setCustomizing(open); if (!open) setEditing(false); }}>
+          <summary>Customize the room &amp; moves</summary>
+          <p className="lh-small">Optional: choose another room, plan different moves, or edit the scene.</p>
         <div className="lh-field">
           <div className="lh-label">Rooms</div>
           <div className="lh-presets">
@@ -273,7 +301,7 @@ export function PredictView({ present }: { present: boolean }) {
 
         <div className="lh-field">
           <div className="lh-label">
-            Moves <span className="lh-dim">({actions.length}/12 · arrow keys or buttons)</span>
+            Plan the visitor’s moves <span className="lh-dim">({actions.length}/12)</span>
           </div>
           <div className="lh-moves">
             {actions.length === 0 && <span className="lh-dim">No moves yet: only the opening state will be compared.</span>}
@@ -283,14 +311,15 @@ export function PredictView({ present }: { present: boolean }) {
               </span>
             ))}
           </div>
-          <div className="lh-pad" aria-label="move controls">
+          <p className="lh-small">Each arrow adds a move to the plan above. The visitor stays still until you run the comparison.</p>
+          <div className="lh-pad" aria-label="Add moves to the plan">
             {(["N", "W", "S", "E"] as Action[]).map((a) => (
-              <button key={a} className={`lh-key k-${a}`} onClick={() => push(a)} disabled={phase !== "compose" || actions.length >= 12} aria-label={`queue move ${a}`}>
+              <button key={a} className={`lh-key k-${a}`} onClick={() => push(a)} disabled={phase !== "compose" || actions.length >= 12} title={`Add a move ${ {N: "up", S: "down", E: "right", W: "left"}[a]}`} aria-label={`Add a move ${ {N: "up", S: "down", E: "right", W: "left"}[a]}`}>
                 {ARROW[a]}
               </button>
             ))}
             <button className="lh-key k-back" onClick={() => setActions((q) => q.slice(0, -1))} disabled={phase !== "compose" || !actions.length}>
-              undo
+              Undo last
             </button>
             <button className="lh-key k-clear" onClick={() => setActions([])} disabled={phase !== "compose" || !actions.length}>
               clear
@@ -322,24 +351,7 @@ export function PredictView({ present }: { present: boolean }) {
           {invalid && <p className="lh-warn">Not a valid room: {invalid}</p>}
         </div>
 
-        <div className="lh-actions">
-          {phase === "compose" && (
-            <button className="lh-primary" onClick={seal} disabled={!!invalid}>
-              Seal the replica’s prediction
-            </button>
-          )}
-          {phase === "sealing" && <button className="lh-primary" disabled>Computing the prediction…</button>}
-          {phase === "sealed" && (
-            <button className="lh-primary is-gold" onClick={reveal}>
-              Run the original engine &amp; reveal
-            </button>
-          )}
-          {phase === "revealed" && (
-            <button className="lh-secondary" onClick={reset}>
-              New experiment
-            </button>
-          )}
-        </div>
+        </details>
       </div>
 
       <div className="lh-stage">
