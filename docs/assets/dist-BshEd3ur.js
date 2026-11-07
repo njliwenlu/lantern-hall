@@ -1,2 +1,0 @@
-const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["./emscripten-module.browser-XIKQQPVU-DxKXkXI_.js","./chunk-FGV2HSCH-BBn_e2X5.js"])))=>i.map(i=>d[i]);
-import{t as e}from"./index-BbzkdLXq.js";var t={type:`sync`,importFFI:()=>e(()=>import(`./ffi-DDjig4er.js`).then(e=>e.QuickJSFFI),[],import.meta.url),importModuleLoader:()=>e(()=>import(`./emscripten-module.browser-XIKQQPVU-DxKXkXI_.js`).then(e=>e.default),__vite__mapDeps([0,1]),import.meta.url)};export{t as default};

@@ -465,3 +465,10 @@ button:focus-visible,a:focus-visible,summary:focus-visible { outline:2px solid v
 
 /* Explain a recorded blocked push without inventing physical movement. */
 .lh-guidance .lh-play-feedback { border-left:2px solid var(--gold); padding-left:12px; margin:14px 0; font-size:14px; color:var(--text); }
+
+/* An action caption makes blocked observations visible without moving recorded objects. */
+.lh-action-caption { position:absolute; bottom:12px; left:50%; transform:translateX(-50%); display:flex; flex-direction:column; align-items:center; gap:3px; width:max-content; max-width:90%; padding:8px 18px; border:1px solid #b99b6570; border-radius:6px; background:#14151bf2; color:#f1e5cf; pointer-events:none; animation:lh-action-enter .35s ease-out; }
+.lh-action-caption span { font-size:10px; text-transform:uppercase; letter-spacing:.12em; color:#c5ac82; }
+.lh-action-caption strong { font-size:14px; font-weight:500; }
+@keyframes lh-action-enter { from { opacity:.3; } to { opacity:1; } }
+@media (prefers-reduced-motion:reduce) { .lh-action-caption { animation:none; } }

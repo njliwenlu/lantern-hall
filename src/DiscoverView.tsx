@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Board } from "./Board.tsx";
 import { primaryRun } from "./data.ts";
 import { Stepper, useAutoplay } from "./Stepper.tsx";
@@ -17,10 +17,34 @@ export function DiscoverView({ present }: { present: boolean }) {
   const exp = exps.find((e) => e.id === expId) ?? exps.find((e) => !e.error) ?? exps[0];
   const [step, setStep] = useState(Number(initialParams.step) || 0);
   const count = exp?.observations?.length ?? 0;
+  // Guided playback is one continuous sequence of recorded observations.
+  // Archive playback remains scoped to the selected experiment.
+  const guidedFrames = useMemo(() => ["darkCrateLitPlayer", "litCrateDarkPlayer"].flatMap((id) =>
+    (run?.experiments.find((e) => e.round === 2 && e.id === id)?.observations ?? []).map((_, index) => ({ id, step: index }))
+  ), [run]);
+  const guidedIndex = guidedFrames.findIndex((f) => f.id === exp?.id && f.step === step);
+  const setPlaybackStep = useCallback((index: number) => {
+    if (showAll) { setStep(index); return; }
+    const frame = guidedFrames[index];
+    if (frame) { setRound(2); setExpId(frame.id); setStep(frame.step); }
+  }, [showAll, guidedFrames]);
   const auto = useAutoplay(count, step, setStep);
+  const tour = useAutoplay(guidedFrames.length, Math.max(0, guidedIndex), setPlaybackStep);
+  const playing = auto.playing || tour.playing;
+  const stopTour = () => { if (tour.playing) tour.toggle(); };
+  const manualStep = (n: number) => { stopTour(); setStep(n); };
+  const manualAuto = { playing: auto.playing, toggle: () => { stopTour(); auto.toggle(); } };
+  const previous = step > 0 ? exp?.observations?.[step - 1] : null;
+  const current = exp?.observations?.[step];
+  const crateMoved = previous && current && current.crates.some((c) => {
+    const before = previous.crates.find((p) => p.id === c.id);
+    return before && (before.x !== c.x || before.y !== c.y);
+  });
+  const visitorMoved = previous && current && (previous.player.x !== current.player.x || previous.player.y !== current.player.y);
+  const actionResult = crateMoved ? "Crate slides" : visitorMoved ? "Visitor moves" : "Blocked · nothing moved";
 
   useEffect(() => {
-    hooks.discover = { setRound: (n: number) => { setRound(n); setShowAll(true); }, setExp: (id: string) => { setExpId(id); setShowAll(true); }, setGuidedExperiment: (id: string) => { if (!["darkCrateLitPlayer", "litCrateDarkPlayer"].includes(id)) return; setRound(2); setExpId(id); setShowAll(false); setStep(0); }, setStep };
+    hooks.discover = { setRound: (n: number) => { stopTour(); setRound(n); setShowAll(true); }, setExp: (id: string) => { stopTour(); setExpId(id); setShowAll(true); }, setGuidedExperiment: (id: string) => { if (!["darkCrateLitPlayer", "litCrateDarkPlayer"].includes(id)) return; stopTour(); setRound(2); setExpId(id); setShowAll(false); setStep(0); }, setStep: manualStep };
   });
   useEffect(() => {
     if (step >= count) setStep(0);
@@ -46,20 +70,20 @@ export function DiscoverView({ present }: { present: boolean }) {
           <div className="lh-kicker">A two-experiment discovery</div>
           <h2 className="lh-h2 is-small">What makes a crate move?</h2>
           <p>The model suspected the visitor needed to stand in light. Two experiments put that idea to the test.</p>
-          <button className="lh-primary" onClick={() => { if (!auto.playing) setStep(0); auto.toggle(); }}>{auto.playing ? "Pause experiment" : step > 0 ? "Replay experiment" : exp?.id === "litCrateDarkPlayer" ? "Watch this experiment" : "Watch the discovery"} <span aria-hidden="true">{auto.playing ? "Ⅱ" : "▶"}</span></button>
+          <button className="lh-primary" onClick={() => { if (playing) { stopTour(); if (auto.playing) auto.toggle(); } else { tour.toggle(); } }}>{playing ? "Pause discovery" : guidedIndex === guidedFrames.length - 1 ? "Replay discovery" : guidedIndex > 0 ? "Continue discovery" : "Watch the discovery"} <span aria-hidden="true">{playing ? "Ⅱ" : "▶"}</span></button>
           <p className="lh-play-feedback" role="status">
             {step > 0
               ? exp?.id === "darkCrateLitPlayer"
-                ? `${step === count - 1 ? "Both pushes" : "Push 1"} blocked. The dark crate did not move.${step === count - 1 ? " Try lighting the crate next." : ""}`
+                ? `${step === count - 1 ? "Both pushes" : "Push 1"} blocked. The dark crate did not move.${step === count - 1 ? " Next: light on the crate." : ""}`
                 : "The lit crate slid, even though the visitor started in darkness."
-              : auto.playing ? "Playing: the visitor is trying to push the crate…" : "Press Watch to replay two push attempts. A blocked push leaves the board still."}
+              : playing ? "Playing: the visitor is trying to push the crate…" : "Watch both experiments in sequence. First the push is blocked; then the lit crate slides."}
           </p>
           <ol className="lh-story-steps">
             <li className={exp?.id === "darkCrateLitPlayer" ? "is-current" : ""}>Light on the visitor.<small>The crate stays dark.</small></li>
             <li className={exp?.id === "litCrateDarkPlayer" ? "is-current" : ""}>Light on the crate.<small>The visitor stays dark.</small></li>
           </ol>
         </div>
-        <details className="lh-advanced" open={showAll} onToggle={(e) => { const open = e.currentTarget.open; setShowAll(open); if (!open && !["darkCrateLitPlayer", "litCrateDarkPlayer"].includes(exp?.id ?? "")) { setRound(2); setExpId("darkCrateLitPlayer"); setStep(0); if (auto.playing) auto.toggle(); } }}>
+        <details className="lh-advanced" open={showAll} onToggle={(e) => { const open = e.currentTarget.open; if (open) stopTour(); setShowAll(open); if (!open && !["darkCrateLitPlayer", "litCrateDarkPlayer"].includes(exp?.id ?? "")) { setRound(2); setExpId("darkCrateLitPlayer"); setStep(0); if (auto.playing) auto.toggle(); } }}>
         <summary>Explore all experiments</summary>
         <button className="lh-chip" onClick={() => { setShowAll(false); setRound(2); setExpId("darkCrateLitPlayer"); setStep(0); if (auto.playing) auto.toggle(); }}>← Back to guided tour</button>
         <div className="lh-kicker">I · Discover</div>
@@ -114,14 +138,19 @@ export function DiscoverView({ present }: { present: boolean }) {
               </figcaption>
               <div className="lh-board-wrap">
                 <Board layout={exp.layout} obs={exp.observations[step]} title={`experiment ${exp.id}, step ${step}`} />
+                {!showAll && <div className="lh-action-caption" key={`${exp.id}-${step}`} aria-live="polite">
+                  <span>Experiment {exp.id === "darkCrateLitPlayer" ? "1" : "2"} of 2</span>
+                  <strong>{step === 0 ? (playing ? "Playing · watch the push" : "Ready to replay") : `Attempt ${step} ${ARROW[exp.actions[step - 1]] ?? ""} · ${actionResult}`}</strong>
+                </div>}
+
               </div>
             </figure>
-            {showAll ? <Stepper count={count} step={step} setStep={setStep} auto={auto} labels={["start", ...exp.actions.map((a) => ARROW[a] ?? a)]} /> : <div className="lh-guided-playback">
+            {showAll ? <Stepper count={count} step={step} setStep={manualStep} auto={manualAuto} labels={["start", ...exp.actions.map((a) => ARROW[a] ?? a)]} /> : <div className="lh-guided-playback">
               <p className="lh-small" aria-live="polite">{step === 0 ? "Starting position · press Watch to begin" : `Move ${step} of ${count - 1} · push ${exp.actions[step - 1] === "S" ? "south ↓" : "north ↑"}${step === count - 1 ? " · experiment complete" : ""}`}</p>
-              <details className="lh-playback-details"><summary>Replay controls</summary><Stepper count={count} step={step} setStep={setStep} auto={auto} labels={["start", ...exp.actions.map((a) => ARROW[a] ?? a)]} /></details>
+              <details className="lh-playback-details"><summary>Replay controls</summary><Stepper count={count} step={step} setStep={manualStep} auto={manualAuto} labels={["start", ...exp.actions.map((a) => ARROW[a] ?? a)]} /></details>
             </div>}
             {!showAll && <div className="lh-discovery-next">
-              {exp.id === "darkCrateLitPlayer" ? <button className={`lh-chip ${step === count - 1 ? "is-on" : ""}`} onClick={() => { setExpId("litCrateDarkPlayer"); setStep(0); if (!auto.playing) auto.toggle(); }}>Next experiment: light the crate →</button>
+              {exp.id === "darkCrateLitPlayer" ? <button className={`lh-chip ${step === count - 1 ? "is-on" : ""}`} onClick={() => { stopTour(); setExpId("litCrateDarkPlayer"); setStep(0); if (!auto.playing) auto.toggle(); }}>Next experiment: light the crate →</button>
                 : step === count - 1 ? <><p>The crate moves even with the visitor in darkness. In round 3, the model rejected its visitor-light hypothesis.</p><button className="lh-chip is-on" onClick={() => hooks.setTab?.("predict")}>Try a prediction →</button></> : <p>Watch what happens when the visitor pushes north.</p>}
             </div>}
 
