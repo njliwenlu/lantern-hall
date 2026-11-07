@@ -476,3 +476,4 @@ button:focus-visible,a:focus-visible,summary:focus-visible { outline:2px solid v
 .lh-app.is-present .lh-discover.is-browsing .lh-exhibit.is-solo { width:480px; }
 
 .lh-evidence-link { font-size:13px; color:var(--text); }
+.lh-app.is-present .lh-discover.is-browsing .lh-notes { max-height:620px; overflow:auto; overscroll-behavior:contain; }
