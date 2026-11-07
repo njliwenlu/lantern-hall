@@ -59,7 +59,7 @@ export default function App() {
             <span />
           </div>
           <div>
-            <h1 className="lh-title">Lantern Hall</h1>
+            <h1 className="lh-title">EvoArena: Lantern Hall</h1>
             <p className="lh-subtitle">Museum of Impossible Physics</p>
           </div>
         </div>

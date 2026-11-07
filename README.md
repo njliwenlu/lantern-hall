@@ -1,4 +1,4 @@
-# Lantern Hall: Museum of Impossible Physics
+# EvoArena: Lantern Hall: Museum of Impossible Physics
 
 A software-archaeology experiment. We wrote a small deterministic 7×7 world (lamps, coloured glass,
 crates, sensors, doors) and withheld its source. A language model with **no tools** could only ask
