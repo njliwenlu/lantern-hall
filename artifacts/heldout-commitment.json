@@ -1,0 +1,8 @@
+{
+  "sha256": "f50933a2c93b315137c264da44a27b3c693a010cc7d67024fe78640011ab2354",
+  "count": 48,
+  "random": 40,
+  "edge": 8,
+  "createdAt": "2026-11-07T20:05:13.351Z",
+  "note": "SHA-256 of the exact bytes of private/heldout.json, committed before the first discovery call. The file is revealed only after the replica is frozen."
+}
