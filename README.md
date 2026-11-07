@@ -6,22 +6,28 @@
 
 ## 60-second demo pitch
 
-**0–6s · Enter the world**  
-“An AI enters a world with hidden rules. EvoArena: Lantern Hall. We hid the engine’s source.”
+**0–5s · The challenge**  
+“We hid a game’s source code. Could an AI discover its rules?”
 
-**6–20s · Watch the discovery**  
-“It guessed the visitor needed light. A lit visitor couldn’t budge a dark crate. But a visitor in darkness slid a lit one. So the model rejected its own hypothesis.”
+**5–20s · One discovery**  
+“Its guess: the visitor—the character it moves—needs light to push. Visitor lit, crate dark: the push fails. Visitor dark, crate lit: the crate slides. It rejected that hypothesis in the next round.”
 
-**20–27s · Inspect the code**  
-“Thirty-six experiments. Five distinct implementations. We froze the final code.”
+**20–26s · Six more experiments**  
+“Those were two of thirty-six experiments. Here are six more.”
 
-**27–44s · Predict, seal, compare**  
-“Now the test. Its engine predicts first. We lock the prediction. Then run the original. Seven of seven observations match.”
+**26–31s · Generated code**  
+“Five distinct implementations. We froze the final code.”
 
-**44–60s · See the evidence**  
-“Forty-eight held-out scenarios, scored after discovery. All three hundred thirty-one observations matched, including starting states. One small world, not general proof. Hidden rules, rebuilt as code.”
+**31–45s · Predict, seal, compare**  
+“Now challenge that reconstruction with another room. We seal its prediction before running the original. Reveal both. Watch the two engines side by side. Seven of seven observations match, including the starting state.”
 
-*This is the video’s narration and caption script. Discovery is recorded; prediction and comparison run live in the browser.*
+**45–56s · Held-out evidence**  
+“Forty-eight held-out tests, scored afterward—never feedback for the AI. All three hundred thirty-one observations matched, including starting states. Here’s one of those tests.”
+
+**56–60s · Close**  
+“One small world, not general proof. Hidden rules, rebuilt as code.”
+
+*Read the quoted words aloud. Times are rounded cues. The video shows selected discovery experiments and one held-out replay; the results grid covers all 48 tests.*
 
 ## Run locally
 
