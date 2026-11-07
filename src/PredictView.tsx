@@ -133,7 +133,8 @@ export function PredictView({ present }: { present: boolean }) {
   const [cmp, setCmp] = useState<TraceComparison | null>(null);
   const [step, setStep] = useState(0);
   const invalid = validateLayout(layout);
-  const customSetup = JSON.stringify(layout) !== JSON.stringify(p0.layout) || JSON.stringify(actions) !== JSON.stringify(p0.actions);
+  const selectedPreset = PRESETS.find((p) => p.id === presetId);
+  const customSetup = !selectedPreset || JSON.stringify(layout) !== JSON.stringify(selectedPreset.layout) || JSON.stringify(actions) !== JSON.stringify(selectedPreset.actions);
   const code = frozenCode;
   const sealAttempt = useRef(0);
   useEffect(() => () => { sealAttempt.current++; }, []);
@@ -269,19 +270,19 @@ export function PredictView({ present }: { present: boolean }) {
         <p className="lh-guidance" aria-live="polite">
           {phase === "compose" ? "The AI’s prediction is sealed first. Then you’ll run the original and compare them." : phase === "sealing" ? "Computing and locking the prediction…" : phase === "sealed" ? "Prediction locked. Now run the original to see whether they agree." : "Both engines have run. Play the comparison to watch the same moves side by side."}
         </p>
-        <p className="lh-small">{customSetup ? "Custom setup" : "Ready to try: The Red Gate"} · {actions.length} planned moves</p>
-        {customSetup && phase === "compose" && <button className="lh-secondary" onClick={() => { loadPreset(p0.id); setEditing(false); }}>Reset to default</button>}
+        <p className="lh-small">{customSetup ? "Custom setup" : `Ready to try: ${selectedPreset?.name}`} · {actions.length} planned moves</p>
+        {customSetup && phase === "compose" && <button className="lh-secondary" onClick={() => { loadPreset(selectedPreset?.id ?? p0.id); setEditing(false); }}>Reset room</button>}
+        <label className="lh-archive-label" htmlFor="prepared-room">Choose a prepared room</label>
+        <select id="prepared-room" className="lh-experiment-picker" value={presetId ?? ""} disabled={phase === "sealing"} onChange={(e) => { loadPreset(e.target.value); setEditing(false); }}>
+          {!presetId && <option value="">Custom room</option>}
+          {PRESETS.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+        </select>
         <details className="lh-advanced" open={customizing} onToggle={(e) => { const open = e.currentTarget.open; setCustomizing(open); if (!open) setEditing(false); }}>
-          <summary>Customize the room &amp; moves</summary>
-          <p className="lh-small">Optional: choose another room, plan different moves, or edit the scene.</p>
+          <summary>Build your own room (advanced)</summary>
+          <p className="lh-small">Optional. The prepared room is ready to predict. Open these tools only to choose another room or change its objects and planned moves.</p>
         <div className="lh-field">
           <div className="lh-label">Rooms</div>
           <div className="lh-presets">
-            {PRESETS.map((p) => (
-              <button key={p.id} className={`lh-chip ${presetId === p.id ? "is-on" : ""}`} onClick={() => loadPreset(p.id)} disabled={phase === "sealing"}>
-                {p.name}
-              </button>
-            ))}
             <button
               className={`lh-chip ${presetId === null ? "is-on" : ""}`}
               disabled={phase === "sealing"}

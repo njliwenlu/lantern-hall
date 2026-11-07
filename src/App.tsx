@@ -3,7 +3,6 @@ import { DiscoverView } from "./DiscoverView.tsx";
 import { ReconstructView } from "./ReconstructView.tsx";
 import { PredictView } from "./PredictView.tsx";
 import { Evidence } from "./Evidence.tsx";
-import { distinctVersions, primaryEval, primaryRun } from "./data.ts";
 import { hooks, initialParams } from "./hooks.ts";
 
 type Tab = "discover" | "reconstruct" | "predict";
@@ -50,7 +49,6 @@ export default function App() {
     return () => window.removeEventListener("keydown", onKey);
   }, [tab, present]);
 
-  const ev = primaryEval;
   const shell = (
     <div className={`lh-app ${present ? "is-present" : ""}`} ref={mainRef}>
       <header className="lh-header">
@@ -72,16 +70,7 @@ export default function App() {
             </button>
           ))}
         </nav>
-        <div className="lh-headright">
-          <button className="lh-chip" onClick={() => setEvidence(true)}>
-            Evidence
-          </button>
-          {!present && (
-            <a className="lh-chip" href={`?present=1&tab=${tab}`} title="clean 16:9 framing for recording">
-              Presentation
-            </a>
-          )}
-        </div>
+
       </header>
 
       <section className="lh-premise" aria-label="About this exhibit">
@@ -90,10 +79,7 @@ export default function App() {
           <h2>{tab === "discover" ? "The laws are missing." : tab === "reconstruct" ? "From observation to invention." : "A theory meets reality."}</h2>
         </div>
         <p>{tab === "discover" ? "We hid the rules. A model explored the world, challenged its assumptions, and wrote the engine it believed was inside." : tab === "reconstruct" ? "Follow the model’s changing reconstruction, from its first attempt to the frozen engine. Every version is real, executable code." : "Arrange an unfamiliar room. Seal the model’s prediction. Only then reveal what the original world actually does."}</p>
-        <div className="lh-exhibit-number"><span>Exhibit 001</span><strong>Light / matter / inference</strong>
-          {primaryRun && <small>{primaryRun.codeVersions.length} submissions · {distinctVersions} distinct engines</small>}
-          {ev && <small>{ev.summary.exactTraces}/{ev.summary.traces} sealed test traces matched</small>}
-        </div>
+
       </section>
 
       <main className="lh-main">
@@ -104,6 +90,7 @@ export default function App() {
 
       {!present && (
         <footer className="lh-footer">
+          <button className="lh-evidence-link" onClick={() => setEvidence(true)}>View experiment evidence</button>
           <span>Rules were withheld from the model during the recorded run; they are public here afterwards.</span>
           <span>Agreement is measured on the tests shown, not proven in general.</span>
         </footer>

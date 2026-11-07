@@ -38,7 +38,7 @@ code, .lh-mono { font-family: var(--mono); font-size: 0.86em; }
 
 /* The museum is paper and ink; the world itself is a luminous dark object. */
 .lh-app { position:relative; min-height:100vh; padding:24px clamp(22px,3vw,48px) 20px; display:flex; flex-direction:column; gap:24px; background:var(--ink); }
-.lh-header { display:grid; grid-template-columns:minmax(280px,1fr) auto minmax(180px,1fr); align-items:center; gap:24px; border-bottom:1px solid var(--text); padding-bottom:20px; }
+.lh-header { display:grid; grid-template-columns:minmax(280px,1fr) auto; align-items:center; gap:24px; border-bottom:1px solid var(--text); padding-bottom:20px; }
 .lh-brand { display:flex; align-items:center; gap:14px; }
 .lh-mark { width:38px; height:48px; display:grid; place-items:center; border:1px solid var(--gold); border-radius:20px 20px 2px 2px; position:relative; }
 .lh-mark::after { content:""; width:1px; height:16px; background:var(--gold); position:absolute; bottom:0; }
@@ -51,14 +51,9 @@ code, .lh-mono { font-family: var(--mono); font-size: 0.86em; }
 .lh-navn { grid-row:span 2; font:italic 17px var(--serif); color:var(--gold); align-self:center; }
 .lh-navl { font-size:14px; font-weight:600; }
 .lh-navs { font-size:10px; color:var(--muted); }
-.lh-headright { display:flex; justify-content:flex-end; gap:8px; }
-.lh-premise { display:grid; grid-template-columns:1.2fr 1fr auto; align-items:center; gap:32px; padding:0 0 22px; border-bottom:1px solid var(--line); }
+.lh-premise { display:grid; grid-template-columns:1.2fr 1fr; align-items:center; gap:32px; padding:0 0 22px; border-bottom:1px solid var(--line); }
 .lh-premise h2 { font:400 clamp(30px,3vw,46px)/1.06 var(--serif); letter-spacing:-.045em; margin:0; }
 .lh-premise p { font-size:13px; line-height:1.65; max-width:410px; margin:0; color:var(--muted); }
-.lh-exhibit-number { border-left:1px solid var(--line); padding-left:24px; display:flex; flex-direction:column; gap:2px; font-size:10px; }
-.lh-exhibit-number > span { text-transform:uppercase; letter-spacing:.17em; color:var(--gold); }
-.lh-exhibit-number strong { font:italic 14px var(--serif); margin:3px 0; }
-.lh-exhibit-number small { font-size:10px; color:var(--muted); }
 
 /* ---------- shared controls ---------- */
 .lh-chip {
@@ -428,10 +423,8 @@ button:focus-visible,a:focus-visible,summary:focus-visible { outline:2px solid v
 /* Presentation lives on a fixed canvas, independently of the browser width. */
 @media (max-width: 1280px) {
   .lh-app:not(.is-present) .lh-header { grid-template-columns:1fr auto; }
-  .lh-app:not(.is-present) .lh-headright { grid-column:2; grid-row:1; }
   .lh-app:not(.is-present) .lh-nav { grid-row:2; grid-column:1 / -1; }
   .lh-app:not(.is-present) .lh-premise { grid-template-columns:1fr 1fr; }
-  .lh-app:not(.is-present) .lh-exhibit-number { display:none; }
   .lh-app:not(.is-present) .lh-discover,.lh-app:not(.is-present) .lh-recon { grid-template-columns:190px minmax(0,1fr); }
   .lh-app:not(.is-present) .lh-notes { grid-column:1 / -1; }
   .lh-app:not(.is-present) .lh-predict { grid-template-columns:280px minmax(0,1fr); }
@@ -450,7 +443,6 @@ button:focus-visible,a:focus-visible,summary:focus-visible { outline:2px solid v
   .lh-app:not(.is-present) .lh-kv li { grid-template-columns:105px minmax(0,1fr); }
   .lh-app:not(.is-present) .lh-veil { max-width:95%; white-space:normal; text-align:center; }
   .lh-app:not(.is-present) .lh-header { grid-template-columns:1fr; gap:14px; }
-  .lh-app:not(.is-present) .lh-headright { grid-column:auto; grid-row:auto; justify-content:flex-start; }
   .lh-app:not(.is-present) .lh-premise { grid-template-columns:1fr; gap:14px; }
   .lh-app:not(.is-present) .lh-rail,.lh-app:not(.is-present) .lh-notes,.lh-app:not(.is-present) .lh-predict-left { border:0; padding:0; }
   .lh-app:not(.is-present) .lh-rounds { flex-direction:row; overflow:auto; }
@@ -472,3 +464,15 @@ button:focus-visible,a:focus-visible,summary:focus-visible { outline:2px solid v
 .lh-action-caption strong { font-size:14px; font-weight:500; }
 @keyframes lh-action-enter { from { opacity:.3; } to { opacity:1; } }
 @media (prefers-reduced-motion:reduce) { .lh-action-caption { animation:none; } }
+
+.lh-archive-label { display:block; margin:20px 0 8px; font-size:13px; font-weight:600; }
+.lh-experiment-picker { width:100%; max-width:100%; padding:12px 8px; border:1px solid var(--line); border-radius:4px; color:var(--text); background:var(--paper, #f3eee3); font:13px var(--sans); }
+.lh-run-details { margin-top:20px; }
+.lh-archive-playback { text-align:center; }
+.lh-archive-playback .lh-primary { min-width:210px; }
+.lh-archive-playback .lh-primary span { margin-left:16px; }
+.lh-evidence-link { border:0; padding:0; color:var(--muted); background:none; font:inherit; text-decoration:underline; text-underline-offset:3px; cursor:pointer; }
+.lh-discover.is-browsing .lh-exhibit.is-solo { width:min(42vh, 480px, 100%); }
+.lh-app.is-present .lh-discover.is-browsing .lh-exhibit.is-solo { width:480px; }
+
+.lh-evidence-link { font-size:13px; color:var(--text); }

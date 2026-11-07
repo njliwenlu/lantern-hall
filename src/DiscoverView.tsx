@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Board } from "./Board.tsx";
 import { primaryRun } from "./data.ts";
+import { experimentTitle } from "./experimentTitles.ts";
 import { Stepper, useAutoplay } from "./Stepper.tsx";
 import { hooks, initialParams } from "./hooks.ts";
 
@@ -86,50 +87,32 @@ export function DiscoverView({ present }: { present: boolean }) {
         <details className="lh-advanced" open={showAll} onToggle={(e) => { const open = e.currentTarget.open; if (open) stopTour(); setShowAll(open); if (!open && !["darkCrateLitPlayer", "litCrateDarkPlayer"].includes(exp?.id ?? "")) { setRound(2); setExpId("darkCrateLitPlayer"); setStep(0); if (auto.playing) auto.toggle(); } }}>
         <summary>Explore all experiments</summary>
         <button className="lh-chip" onClick={() => { setShowAll(false); setRound(2); setExpId("darkCrateLitPlayer"); setStep(0); if (auto.playing) auto.toggle(); }}>← Back to guided tour</button>
-        <div className="lh-kicker">I · Discover</div>
-        <div className="lh-recorded">
-          <span className="lh-badge is-rec">Recorded discovery</span>
-          <span className="lh-mono lh-dim">{run.runId}</span>
-        </div>
-        <ol className="lh-rounds">
-          {rounds.map((r) => {
-            const v = run.codeVersions.find((c) => c.version === r.codeVersion);
-            return (
-              <li key={r.round}>
-                <button className={`lh-round ${r.round === rec?.round ? "is-on" : ""}`} onClick={() => { setRound(r.round); setExpId(null); setStep(0); }}>
-                  <span className="lh-round-n">Round {r.round}</span>
-                  <span className="lh-round-meta">
-                    {r.failure ? "call failed" : r.parseError ? "unparseable reply" : `${r.experimentIds.length} experiment${r.experimentIds.length === 1 ? "" : "s"}`}
-                    {v ? ` · code v${v.version} (${v.validation.exact}/${v.validation.experiments})` : ""}
-                    {r.final ? " · final" : ""}
-                  </span>
-                </button>
-              </li>
-            );
-          })}
-        </ol>
-        <p className="lh-small lh-dim">
-          Each round is a fresh, tool-free {run.model} process given only the schema and these results. {run.status !== "completed" ? `Run status: ${run.status}.` : ""}
-        </p>
+        <p className="lh-small">The AI ran {run.experiments.length} experiments to uncover the rules. Choose one below, then press Play experiment. A round is one cycle of experiments and feedback.</p>
+        <label className="lh-archive-label" htmlFor="experiment-picker">Choose an experiment</label>
+        <select id="experiment-picker" className="lh-experiment-picker" value={exp?.id ?? ""} onChange={(e) => {
+          const selected = run.experiments.find((x) => x.id === e.target.value);
+          if (!selected) return;
+          stopTour(); if (auto.playing) auto.toggle();
+          setRound(selected.round); setExpId(selected.id); setStep(0);
+        }}>
+          {!exp && <option value="">Choose an experiment…</option>}
+          {rounds.filter((r) => run.experiments.some((e) => e.round === r.round)).map((r) => <optgroup key={r.round} label={`Round ${r.round}`}>
+            {run.experiments.filter((e) => e.round === r.round).map((e) => <option key={e.id} value={e.id}>{experimentTitle(e.id)} · {e.actions.length} moves</option>)}
+          </optgroup>)}
+        </select>
+        <details className="lh-advanced lh-run-details"><summary>Technical details</summary>
+          <p className="lh-small">Run: {run.runId}<br />Model: {run.model}<br />Experiment ID: {exp?.id ?? "none"}</p>
+          <p className="lh-small">Each round uses a fresh, tool-free model process. The final code-only round is shown on Reconstruct.</p>
+        </details>
         </details>
       </aside>
 
       <div className="lh-stage">
         <div className="lh-exp-head">
           <div className="lh-label">The observation room · round {rec?.round}</div>
-          <h2 className="lh-h2">{exp ? <>{exp.id === "darkCrateLitPlayer" ? "Light on the visitor" : exp.id === "litCrateDarkPlayer" ? "Light on the crate" : exp.id.replace(/([a-z])([A-Z])/g, "$1 $2").replace(/[_-]/g, " ")}</> : rec?.round === run.maxRounds ? "Final round: code only" : "No experiment this round"}</h2>
-          {showAll && exp && <div className="lh-catalog-id">{exp.id}</div>}
+          <h2 className="lh-h2">{exp ? <>{experimentTitle(exp.id)}</> : rec?.round === run.maxRounds ? "Final round: code only" : "No experiment this round"}</h2>
           {exp?.purpose && <p className="lh-quote">{exp.id === "darkCrateLitPlayer" ? "The visitor stands in light and pushes south. Watch the dark crate." : exp.id === "litCrateDarkPlayer" ? "Now the crate is lit, and the visitor is dark. Watch the northward push." : `“${exp.purpose}”`}</p>}
         </div>
-        {showAll && exps.length > 1 && (
-          <div className="lh-exptabs">
-            {exps.map((e) => (
-              <button key={e.id} className={`lh-chip ${e.id === exp?.id ? "is-on" : ""} ${e.error ? "is-bad" : ""}`} onClick={() => { setExpId(e.id); setStep(0); }}>
-                {e.id}
-              </button>
-            ))}
-          </div>
-        )}
         {exp && exp.observations ? (
           <>
             <figure className="lh-exhibit is-solo">
@@ -145,7 +128,11 @@ export function DiscoverView({ present }: { present: boolean }) {
 
               </div>
             </figure>
-            {showAll ? <Stepper count={count} step={step} setStep={manualStep} auto={manualAuto} labels={["start", ...exp.actions.map((a) => ARROW[a] ?? a)]} /> : <div className="lh-guided-playback">
+            {showAll ? <div className="lh-archive-playback">
+              <button className="lh-primary" onClick={manualAuto.toggle} disabled={count < 2}>{auto.playing ? "Pause experiment" : step === count - 1 ? "Replay experiment" : "Play experiment"} <span aria-hidden="true">{auto.playing ? "Ⅱ" : "▶"}</span></button>
+              <p className="lh-small">{step === 0 ? "Starting position" : `Move ${step} of ${count - 1}`} · replaying recorded results</p>
+              <details className="lh-playback-details"><summary>Step through moves</summary><Stepper count={count} step={step} setStep={manualStep} labels={["start", ...exp.actions.map((a) => ARROW[a] ?? a)]} /></details>
+            </div> : <div className="lh-guided-playback">
               <p className="lh-small" aria-live="polite">{step === 0 ? "Starting position · press Watch to begin" : `Move ${step} of ${count - 1} · push ${exp.actions[step - 1] === "S" ? "south ↓" : "north ↑"}${step === count - 1 ? " · experiment complete" : ""}`}</p>
               <details className="lh-playback-details"><summary>Replay controls</summary><Stepper count={count} step={step} setStep={manualStep} auto={manualAuto} labels={["start", ...exp.actions.map((a) => ARROW[a] ?? a)]} /></details>
             </div>}
@@ -163,14 +150,14 @@ export function DiscoverView({ present }: { present: boolean }) {
       </div>
 
       <aside className="lh-notes" aria-label="model notes">
-        <details className="lh-advanced" open={showAll}>
-        <summary>Read the field journal <span>Actual model notes &amp; hypotheses</span></summary>
-        <div className="lh-kicker">The field journal · {exp?.id}</div>
+        <details className="lh-advanced">
+        <summary>AI’s notes &amp; hypotheses <span>Written responses from this round</span></summary>
+        <p className="lh-small lh-dim">These are notes and hypotheses the model explicitly wrote in its responses, not its private internal thoughts.</p>
         {rec?.notes && (
-          <details className="lh-note lh-journal-note">
-            <summary>Read the model’s notes · round {rec.round}</summary>
+          <div className="lh-note lh-journal-note">
+            <div className="lh-label">Model’s written notes · round {rec.round}</div>
             <p className="lh-quote">“{rec.notes}”</p>
-          </details>
+          </div>
         )}
         {rec?.hypotheses && rec.hypotheses.length > 0 && (
           <div className="lh-note">
