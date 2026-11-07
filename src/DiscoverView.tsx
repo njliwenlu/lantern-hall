@@ -9,10 +9,10 @@ const ARROW: Record<string, string> = { N: "↑", S: "↓", E: "→", W: "←" }
 export function DiscoverView({ present }: { present: boolean }) {
   const run = primaryRun;
   const rounds = run?.rounds ?? [];
-  const [round, setRound] = useState<number>(Number(initialParams.round) || rounds[0]?.round || 1);
+  const [round, setRound] = useState<number>(Number(initialParams.round) || (rounds.some((r) => r.round === 2) ? 2 : rounds[0]?.round) || 1);
   const rec = rounds.find((r) => r.round === round) ?? rounds[0];
   const exps = useMemo(() => run?.experiments.filter((e) => e.round === rec?.round) ?? [], [run, rec]);
-  const [expId, setExpId] = useState<string | null>(initialParams.exp);
+  const [expId, setExpId] = useState<string | null>(initialParams.exp ?? "litCrateDarkPlayer");
   const exp = exps.find((e) => e.id === expId) ?? exps.find((e) => !e.error) ?? exps[0];
   const [step, setStep] = useState(Number(initialParams.step) || 0);
   const count = exp?.observations?.length ?? 0;
@@ -70,7 +70,9 @@ export function DiscoverView({ present }: { present: boolean }) {
 
       <div className="lh-stage">
         <div className="lh-exp-head">
-          <h2 className="lh-h2">{exp ? <>Experiment <span className="lh-mono">{exp.id}</span></> : rec?.round === run.maxRounds ? "Final round: code only" : "No experiment this round"}</h2>
+          <div className="lh-label">The observation room · round {rec?.round}</div>
+          <h2 className="lh-h2">{exp ? <>{exp.id.replace(/([a-z])([A-Z])/g, "$1 $2").replace(/[_-]/g, " ")}</> : rec?.round === run.maxRounds ? "Final round: code only" : "No experiment this round"}</h2>
+          {exp && <div className="lh-catalog-id">{exp.id}</div>}
           {exp?.purpose && <p className="lh-quote">“{exp.purpose}”</p>}
         </div>
         {exps.length > 1 && (
@@ -86,7 +88,7 @@ export function DiscoverView({ present }: { present: boolean }) {
           <>
             <figure className="lh-exhibit is-solo">
               <figcaption>
-                <span className="lh-badge is-rec">Recorded</span> What the original engine returned to the model
+                <span className="lh-badge is-rec">Recorded</span> Original world · recorded observation
               </figcaption>
               <div className="lh-board-wrap">
                 <Board layout={exp.layout} obs={exp.observations[step]} title={`experiment ${exp.id}, step ${step}`} />
@@ -102,11 +104,12 @@ export function DiscoverView({ present }: { present: boolean }) {
       </div>
 
       <aside className="lh-notes" aria-label="model notes">
+        <div className="lh-kicker">The field journal</div>
         {rec?.notes && (
-          <div className="lh-note">
-            <div className="lh-label">Model’s notes · round {rec.round}</div>
+          <details className="lh-note lh-journal-note">
+            <summary>Read the model’s notes · round {rec.round}</summary>
             <p className="lh-quote">“{rec.notes}”</p>
-          </div>
+          </details>
         )}
         {rec?.hypotheses && rec.hypotheses.length > 0 && (
           <div className="lh-note">

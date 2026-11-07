@@ -29,32 +29,28 @@ export interface BoardProps {
   dim?: boolean;
 }
 
-function lampAt(layout: Layout, x: number, y: number) {
-  return layout.lamps.find((l) => l.x === x && l.y === y);
-}
-
 function BoardImpl({ layout, obs, diffCells, onCellClick, title, className, dim }: BoardProps) {
   const light = obs?.light;
   const doorOpen = useMemo(() => new Map(obs?.doors.map((d) => [d.id, d.open]) ?? []), [obs]);
   const sensorLight = useMemo(() => new Map(obs?.sensors.map((s) => [s.id, s.light]) ?? []), [obs]);
 
-  // Beam strokes inferred from the per-cell light the engine REPORTED (no hidden rules here):
-  // a colour band is drawn along the axis where neighbouring cells share that colour.
+  // Use the reported cells as truth. Lamp alignment supplies only a drawing axis;
+  // neighbouring parallel beams must never create an invented perpendicular ray.
   const bands = useMemo(() => {
     const out: { key: string; x: number; y: number; c: string; h: boolean; v: boolean; off: number }[] = [];
     if (!light) return out;
-    const has = (x: number, y: number, c: string) => x >= 0 && y >= 0 && x < 7 && y < 7 && (light[y]?.[x] ?? "").includes(c);
-    const feeds = (x: number, y: number, tx: number, ty: number) => {
-      const l = lampAt(layout, x, y);
-      return !!l && x + DV[l.dir][0] === tx && y + DV[l.dir][1] === ty;
-    };
+    const aligned = (x: number, y: number, horizontal: boolean) => layout.lamps.some((l) => {
+      const [dx, dy] = DV[l.dir];
+      return horizontal ? dy === 0 && l.y === y && (x - l.x) * dx > 0
+        : dx === 0 && l.x === x && (y - l.y) * dy > 0;
+    });
     for (let y = 0; y < 7; y++)
       for (let x = 0; x < 7; x++) {
         const s = light[y]?.[x] ?? "";
         const letters = s.split("").filter((ch) => LIGHT_HEX[ch]);
         letters.forEach((c, i) => {
-          const h = has(x - 1, y, c) || has(x + 1, y, c) || feeds(x - 1, y, x, y) || feeds(x + 1, y, x, y);
-          const v = has(x, y - 1, c) || has(x, y + 1, c) || feeds(x, y - 1, x, y) || feeds(x, y + 1, x, y);
+          const h = aligned(x, y, true);
+          const v = aligned(x, y, false);
           out.push({ key: `${x},${y},${c}`, x, y, c, h, v, off: (i - (letters.length - 1) / 2) * 13 });
         });
       }

@@ -55,10 +55,10 @@ npm run evaluate -- --run-id run-01                # sealed evaluation of a froz
 node harness/format-code.ts --run-id run-01        # display-only formatting of submitted code
 ```
 
-`npm run evaluate` needs `private/heldout.json`, which is not in the repository (the revealed copy is
-`artifacts/heldout.json`, byte-identical). To re-verify from a clone, compare the hash yourself:
-`shasum -a 256 artifacts/heldout.json` should print `f50933a2…2354`, the value committed in
-`artifacts/heldout-commitment.json`.
+`npm run evaluate -- --run-id run-01` also works from a fresh clone: when the private
+corpus is absent, it uses the byte-identical revealed `artifacts/heldout.json`. It
+verifies the pre-discovery SHA-256 commitment and refuses to score altered data.
+The original discovery process never received this corpus.
 
 ## Source isolation (how discovery was run)
 
@@ -177,5 +177,4 @@ artifacts/    heldout-commitment.json, heldout.json (revealed), discovery/run-01
               replica/run-01.js (+ .frozen.json), evaluation/run-01.json, code-display/run-01.json
 src/          the static exhibit (React)
 private/      git-ignored raw prompts/streams/logs and the held-out seed
-scripts/, .openai/  left over from the hosting starter; not used by the static build
 ```

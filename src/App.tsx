@@ -84,13 +84,17 @@ export default function App() {
         </div>
       </header>
 
-      <div className="lh-premise">
-        <p>
-          We built a small world with its own physics of light, glass, crates and doors, then hid its source. A language model with no tools could only ask for experiments and read the results.
-          {primaryRun ? ` In recorded run ${primaryRun.runId} it submitted ${primaryRun.codeVersions.length} versions of an executable reconstruction (${distinctVersions} distinct).` : ""}
-          {ev ? ` The frozen version matched ${ev.summary.exactTraces} of ${ev.summary.traces} sealed, unseen test traces exactly.` : ""}
-        </p>
-      </div>
+      <section className="lh-premise" aria-label="About this exhibit">
+        <div>
+          <div className="lh-kicker">An experiment in machine discovery</div>
+          <h2>{tab === "discover" ? "The laws are missing." : tab === "reconstruct" ? "From observation to invention." : "A theory meets reality."}</h2>
+        </div>
+        <p>{tab === "discover" ? "We hid the rules. A model explored the world, challenged its assumptions, and wrote the engine it believed was inside." : tab === "reconstruct" ? "Follow the model’s changing reconstruction, from its first attempt to the frozen engine. Every version is real, executable code." : "Arrange an unfamiliar room. Seal the model’s prediction. Only then reveal what the original world actually does."}</p>
+        <div className="lh-exhibit-number"><span>Exhibit 001</span><strong>Light / matter / inference</strong>
+          {primaryRun && <small>{primaryRun.codeVersions.length} submissions · {distinctVersions} distinct engines</small>}
+          {ev && <small>{ev.summary.exactTraces}/{ev.summary.traces} sealed test traces matched</small>}
+        </div>
+      </section>
 
       <main className="lh-main">
         {tab === "discover" && <DiscoverView present={present} />}

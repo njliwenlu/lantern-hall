@@ -7,7 +7,7 @@
 // It also scores earlier code versions post hoc (clearly labelled; never shown to the model).
 import { createHash } from "node:crypto";
 import { execSync } from "node:child_process";
-import { mkdirSync, readFileSync, writeFileSync, copyFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync, copyFileSync, existsSync } from "node:fs";
 import { compareTraces } from "../engine/compare.ts";
 import type { Action, Layout, Observation } from "../engine/types.ts";
 import { runCandidateNode } from "./sandbox-node.ts";
@@ -15,7 +15,8 @@ import { runCandidateNode } from "./sandbox-node.ts";
 const i = process.argv.indexOf("--run-id");
 const RUN_ID = i >= 0 ? process.argv[i + 1] : "run-01";
 
-const raw = readFileSync("private/heldout.json", "utf8");
+const corpusPath = existsSync("private/heldout.json") ? "private/heldout.json" : "artifacts/heldout.json";
+const raw = readFileSync(corpusPath, "utf8");
 const sha = createHash("sha256").update(raw).digest("hex");
 const commitment = JSON.parse(readFileSync("artifacts/heldout-commitment.json", "utf8"));
 let commitCommit: string | undefined;
@@ -25,7 +26,7 @@ try {
   /* git unavailable */
 }
 const verified = sha === commitment.sha256;
-if (!verified) console.error(`WARNING: heldout hash ${sha} != committed ${commitment.sha256}`);
+if (!verified) throw new Error(`heldout hash ${sha} != committed ${commitment.sha256}`);
 
 const corpus = JSON.parse(raw) as { traces: { id: string; kind: string; layout: Layout; actions: Action[]; observations: Observation[] }[] };
 const frozen = JSON.parse(readFileSync(`artifacts/replica/${RUN_ID}.frozen.json`, "utf8"));
@@ -83,7 +84,7 @@ writeFileSync(
     1,
   ),
 );
-copyFileSync("private/heldout.json", "artifacts/heldout.json");
+if (corpusPath !== "artifacts/heldout.json") copyFileSync(corpusPath, "artifacts/heldout.json");
 console.log(`[${RUN_ID}] frozen v${frozen.version}: ${summary.exactTraces}/${summary.traces} traces exact, ${summary.matchingSteps}/${summary.steps} observations, ${summary.errors} errors; heldout verified=${verified}`);
 for (const v of versions) console.log(`  v${v.version} (round ${v.round}): ${v.exactTraces}/${summary.traces} exact, ${v.matchingSteps}/${v.steps} obs`);
 for (const t of traces.filter((x) => !x.exact)) console.log(`  MISMATCH ${t.id} (${t.kind}) first@${t.firstDivergence}: ${t.error ?? t.diffs[0]?.fields.slice(0, 3).map((f) => f.field).join(", ")}`);

@@ -241,9 +241,9 @@ export function PredictView({ present }: { present: boolean }) {
     <section className={`lh-view lh-predict ${present ? "is-present" : ""}`}>
       <div className="lh-predict-left">
         <div className="lh-kicker">III · Predict</div>
-        <h2 className="lh-h2">Seal the prediction, then ask reality.</h2>
+        <h2 className="lh-h2">Your experiment.</h2>
         <p className="lh-lede">
-          Choose a room and a few moves. The frozen reconstruction (v{code.version}, written by the model) computes its whole trace first; we lock it with a hash. Only then does the original engine run.
+          Choose a room and queue your moves. Model-written engine v{code.version} predicts first; its trace is locked with a hash before the original runs.
         </p>
 
         <div className="lh-field">
