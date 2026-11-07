@@ -47,3 +47,4 @@ yarn-error.log*
 # Lantern Hall private logs (raw prompts/streams may contain session ids, local paths)
 /private/
 /OWNER_UPDATES.txt
+/PROGRESS.txt

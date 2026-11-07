@@ -9,35 +9,29 @@ export interface FieldDiff {
 
 export function diffObservation(expected: Observation, actual: unknown): FieldDiff[] {
   const diffs: FieldDiff[] = [];
-  const a = (actual ?? {}) as Partial<Observation>;
-  const push = (field: string, e: unknown, v: unknown) => diffs.push({ field, expected: e, actual: v });
-  if (a.player?.x !== expected.player.x || a.player?.y !== expected.player.y)
-    push("player", expected.player, a.player ?? null);
-  const ac = Array.isArray(a.crates) ? a.crates : [];
-  expected.crates.forEach((c, i) => {
-    const o = ac.find((x) => x && x.id === c.id) ?? ac[i];
-    if (!o || o.x !== c.x || o.y !== c.y) push(`crate ${c.id} position`, { x: c.x, y: c.y }, o ? { x: o.x, y: o.y } : null);
-    if (!o || Boolean(o.lit) !== c.lit) push(`crate ${c.id} lit`, c.lit, o ? o.lit : null);
-  });
-  for (let y = 0; y < expected.light.length; y++) {
-    for (let x = 0; x < expected.light[y].length; x++) {
-      const e = expected.light[y][x];
-      const raw = Array.isArray(a.light) && Array.isArray(a.light[y]) ? a.light[y][x] : undefined;
-      const v = typeof raw === "string" ? raw.split("").sort().join("") : raw;
-      if (v !== e) push(`light ${x},${y}`, e, v ?? null);
+  // The published contract fixes field types, array order and lengths. Structural
+  // equality prevents absent false booleans or extra entities passing as "exact".
+  const compare = (e: unknown, a: unknown, path: string) => {
+    if (Object.is(e, a)) return;
+    if (Array.isArray(e)) {
+      if (!Array.isArray(a)) { diffs.push({ field: path, expected: e, actual: a ?? null }); return; }
+      if (e.length !== a.length) diffs.push({ field: `${path}.length`, expected: e.length, actual: a.length });
+      e.forEach((v, i) => compare(v, a[i], `${path}[${i}]`));
+      return;
     }
-  }
-  const as = Array.isArray(a.sensors) ? a.sensors : [];
-  expected.sensors.forEach((s) => {
-    const o = as.find((x) => x && x.id === s.id);
-    const v = o && typeof o.light === "string" ? o.light.split("").sort().join("") : o?.light;
-    if (v !== s.light) push(`sensor ${s.id}`, s.light, v ?? null);
-  });
-  const ad = Array.isArray(a.doors) ? a.doors : [];
-  expected.doors.forEach((d) => {
-    const o = ad.find((x) => x && x.id === d.id);
-    if (!o || Boolean(o.open) !== d.open) push(`door ${d.id}`, d.open, o ? o.open : null);
-  });
+    if (e !== null && typeof e === "object") {
+      if (a === null || typeof a !== "object" || Array.isArray(a)) {
+        diffs.push({ field: path, expected: e, actual: a ?? null }); return;
+      }
+      const eo = e as Record<string, unknown>, ao = a as Record<string, unknown>;
+      for (const k of Object.keys(eo)) compare(eo[k], Object.hasOwn(ao, k) ? ao[k] : undefined, `${path}.${k}`);
+      for (const k of Object.keys(ao)) if (!Object.hasOwn(eo, k))
+        diffs.push({ field: `${path}.${k}`, expected: null, actual: ao[k] });
+      return;
+    }
+    diffs.push({ field: path, expected: e, actual: a ?? null });
+  };
+  compare(expected, actual, "observation");
   return diffs;
 }
 
@@ -58,19 +52,24 @@ export function compareTraces(expected: Observation[], actual: unknown[] | null,
     firstDivergence: null,
     diffs: [],
   };
-  if (error || !actual) {
+  if (error || !Array.isArray(actual)) {
     res.error = error ?? "no output";
     res.firstDivergence = 0;
     return res;
+  }
+  if (actual.length !== expected.length) {
+    res.firstDivergence = Math.min(actual.length, expected.length);
+    res.diffs.push({ step: res.firstDivergence, fields: [{ field: "trace.length", expected: expected.length, actual: actual.length }] });
   }
   expected.forEach((e, i) => {
     const f = diffObservation(e, actual[i]);
     if (f.length === 0) res.matchingSteps++;
     else {
-      if (res.firstDivergence === null) res.firstDivergence = i;
+      if (res.firstDivergence === null || i < res.firstDivergence) res.firstDivergence = i;
       res.diffs.push({ step: i, fields: f.slice(0, 20) });
     }
   });
-  res.exact = res.matchingSteps === expected.length;
+  res.diffs.sort((a, b) => a.step - b.step);
+  res.exact = actual.length === expected.length && res.matchingSteps === expected.length;
   return res;
 }
