@@ -2,6 +2,8 @@
 
 ### [Try the live demo →](https://njliwenlu.github.io/lantern-hall/)
 
+[Watch the one-minute video →](https://njliwenlu.github.io/lantern-hall/video/)
+
 *A museum of impossible physics.* An AI discovers hidden rules through experiments, then writes an executable reconstruction of the world.
 
 ## 60-second demo pitch
