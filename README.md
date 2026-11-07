@@ -6,22 +6,22 @@
 
 ## 60-second demo pitch
 
-**0–8s · Discover**  
-“What if an AI entered a world where nobody told it the rules? Welcome to EvoArena: Lantern Hall. We built the engine—and hid its source.”
+**0–6s · Enter the world**  
+“An AI enters a world with hidden rules. EvoArena: Lantern Hall. We hid the engine’s source.”
 
-**8–23s · Watch the two experiments**  
-“The AI thought the visitor needed light to push a crate. It tested that idea. Nothing moved. Then it lit the crate instead. It slid through the darkness. Its own experiment proved its hypothesis wrong.”
+**6–20s · Watch the discovery**  
+“It guessed the visitor needed light. A lit visitor couldn’t budge a dark crate. But a visitor in darkness slid a lit one. So the model rejected its own hypothesis.”
 
-**23–34s · Reconstruct**  
-“Thirty-six experiments later, it had written a working reconstruction. These are the actual code revisions. We froze the final version.”
+**20–27s · Inspect the code**  
+“Thirty-six experiments. Five distinct implementations. We froze the final code.”
 
-**34–47s · Predict, then compare**  
-“Now challenge it. The AI’s engine predicts first. We lock that answer, run the original, and compare. Every observation matches in this example.”
+**27–44s · Predict, seal, compare**  
+“Now the test. Its engine predicts first. We lock the prediction. Then run the original. Seven of seven observations match.”
 
-**47–60s · Show the result**  
-“Across forty-eight held-out scenarios, all three hundred thirty-one observations matched. One small world, not universal proof—but an AI that discovered hidden rules and turned them into working code.”
+**44–60s · See the evidence**  
+“Forty-eight held-out scenarios, scored after discovery. All three hundred thirty-one observations matched, including starting states. One small world, not general proof. Hidden rules, rebuilt as code.”
 
-*Suggested live pacing; this is the single pitch script. The existing video has a different edit timeline.*
+*This is the video’s narration and caption script. Discovery is recorded; prediction and comparison run live in the browser.*
 
 ## Run locally
 
