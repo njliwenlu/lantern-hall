@@ -34,6 +34,7 @@ export function metaRequestShape(cfg: MetaConfig) {
     body: {
       model: cfg.model,
       max_tokens: cfg.maxTokens,
+      stream: true,
       system: "<SYSTEM_PROMPT from harness/prompt-template.md>",
       messages: "[{ role: user, content: <round prompt> }]",
       ...(cfg.effort ? { thinking: { type: "adaptive" }, output_config: { effort: cfg.effort } } : {}),
@@ -65,6 +66,7 @@ export async function callMeta(
   const body = JSON.stringify({
     model: cfg.model,
     max_tokens: cfg.maxTokens,
+    stream: true,
     system,
     messages: [{ role: "user", content: prompt }],
     ...(cfg.effort ? { thinking: { type: "adaptive" }, output_config: { effort: cfg.effort } } : {}),
@@ -76,6 +78,7 @@ export async function callMeta(
     result.attempts = attempt;
     let status: number | null = null;
     let text = "";
+    let isStream = false;
     try {
       const res = await fetchImpl(META_ENDPOINT, {
         method: "POST",
@@ -84,9 +87,11 @@ export async function callMeta(
         signal: AbortSignal.timeout(cfg.timeoutMs),
       });
       status = res.status;
+      isStream = res.headers.get("content-type")?.includes("text/event-stream") ?? false;
       text = await res.text();
     } catch (e) {
-      lastErr = scrub(`${(e as Error).name}: ${(e as Error).message}`);
+      const cause = (e as Error & { cause?: { code?: string } }).cause?.code;
+      lastErr = scrub(`${(e as Error).name}: ${(e as Error).message}${cause ? ` (${cause})` : ""}`);
       rawAttempts.push({ attempt, status: null, body: scrub(lastErr) });
       if (attempt <= cfg.maxRetries) await new Promise((r) => setTimeout(r, 2000 * 2 ** (attempt - 1)));
       continue;
@@ -103,9 +108,9 @@ export async function callMeta(
     }
     let msg: Record<string, unknown>;
     try {
-      msg = JSON.parse(text);
+      msg = isStream ? parseMetaStream(text) : JSON.parse(text);
     } catch {
-      return { ok: false, failure: "meta call failed: response body is not JSON", result, rawAttempts };
+      return { ok: false, failure: "meta call failed: response body is incomplete or invalid", result, rawAttempts };
     }
     result.model = msg.model;
     result.stop_reason = msg.stop_reason;
@@ -124,4 +129,31 @@ export async function callMeta(
     return { ok: true, text: out, result, rawAttempts };
   }
   return { ok: false, failure: `meta call failed after ${cfg.maxRetries + 1} attempts: ${lastErr}`, result, rawAttempts };
+}
+
+/** Assemble the final message from Anthropic-compatible SSE. Never treat an interrupted stream as a reply. */
+export function parseMetaStream(raw: string): Record<string, unknown> {
+  let message: Record<string, unknown> | undefined;
+  const blocks: Record<string, unknown>[] = [];
+  let completed = false;
+  for (const event of raw.replace(/\r\n/g, "\n").split("\n\n")) {
+    const data = event.split("\n").filter((line) => line.startsWith("data:")).map((line) => line.slice(5).trimStart()).join("\n");
+    if (!data || data === "[DONE]") continue;
+    const item = JSON.parse(data);
+    if (item.type === "error") throw new Error("Meta stream returned an error event");
+    if (item.type === "message_start") message = { ...item.message };
+    if (item.type === "content_block_start") blocks[item.index] = { ...item.content_block };
+    if (item.type === "content_block_delta" && item.delta?.type === "text_delta") {
+      const block = blocks[item.index];
+      if (!block || block.type !== "text") throw new Error("Text delta without a text block");
+      block.text = String(block.text ?? "") + item.delta.text;
+    }
+    if (item.type === "message_delta" && message) {
+      Object.assign(message, item.delta);
+      message.usage = { ...(message.usage as object ?? {}), ...item.usage };
+    }
+    if (item.type === "message_stop") completed = true;
+  }
+  if (!message || !completed) throw new Error("Incomplete Meta stream");
+  return { ...message, content: blocks };
 }
