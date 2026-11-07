@@ -51,7 +51,12 @@ const RETRYABLE = (s: number) => s === 408 || s === 409 || s === 429 || s >= 500
 function numericUsage(u: unknown): Record<string, number> | undefined {
   if (!u || typeof u !== "object") return undefined;
   const out: Record<string, number> = {};
-  for (const [k, v] of Object.entries(u as Record<string, unknown>)) if (typeof v === "number") out[k] = v;
+  for (const [k, v] of Object.entries(u as Record<string, unknown>)) {
+    if (typeof v === "number" && Number.isFinite(v)) out[k] = v;
+    else if (v && typeof v === "object") {
+      for (const [nested, value] of Object.entries(numericUsage(v) ?? {})) out[`${k}.${nested}`] = value;
+    }
+  }
   return out;
 }
 
@@ -90,9 +95,10 @@ export async function callMeta(
       isStream = res.headers.get("content-type")?.includes("text/event-stream") ?? false;
       text = await res.text();
     } catch (e) {
-      const cause = (e as Error & { cause?: { code?: string } }).cause?.code;
-      lastErr = scrub(`${(e as Error).name}: ${(e as Error).message}${cause ? ` (${cause})` : ""}`);
-      rawAttempts.push({ attempt, status: null, body: scrub(lastErr) });
+      const cause = (e as Error & { cause?: { code?: string; name?: string; message?: string } }).cause;
+      const detail = [cause?.code, cause?.name, cause?.message?.slice(0, 200)].filter(Boolean).join(": ");
+      lastErr = scrub(`${(e as Error).name}: ${(e as Error).message}${detail ? ` (${detail})` : ""}`);
+      rawAttempts.push({ attempt, status, body: lastErr });
       if (attempt <= cfg.maxRetries) await new Promise((r) => setTimeout(r, 2000 * 2 ** (attempt - 1)));
       continue;
     }
@@ -109,8 +115,13 @@ export async function callMeta(
     let msg: Record<string, unknown>;
     try {
       msg = isStream ? parseMetaStream(text) : JSON.parse(text);
-    } catch {
-      return { ok: false, failure: "meta call failed: response body is incomplete or invalid", result, rawAttempts };
+    } catch (error) {
+      if (error instanceof MetaStreamError && error.retryable && attempt <= cfg.maxRetries) {
+        lastErr = error.message;
+        await new Promise((r) => setTimeout(r, 2000 * 2 ** (attempt - 1)));
+        continue;
+      }
+      return { ok: false, failure: error instanceof MetaStreamError ? error.message : "meta call failed: response body is incomplete or invalid", result, rawAttempts };
     }
     result.model = msg.model;
     result.stop_reason = msg.stop_reason;
@@ -131,6 +142,15 @@ export async function callMeta(
   return { ok: false, failure: `meta call failed after ${cfg.maxRetries + 1} attempts: ${lastErr}`, result, rawAttempts };
 }
 
+class MetaStreamError extends Error {
+  readonly retryable: boolean;
+  constructor(type: unknown) {
+    const known = ["overloaded_error", "api_error", "rate_limit_error", "authentication_error", "invalid_request_error"].includes(String(type)) ? String(type) : "unknown_error";
+    super(`Meta stream error: ${known}`);
+    this.retryable = ["overloaded_error", "api_error", "rate_limit_error"].includes(known);
+  }
+}
+
 /** Assemble the final message from Anthropic-compatible SSE. Never treat an interrupted stream as a reply. */
 export function parseMetaStream(raw: string): Record<string, unknown> {
   let message: Record<string, unknown> | undefined;
@@ -140,7 +160,7 @@ export function parseMetaStream(raw: string): Record<string, unknown> {
     const data = event.split("\n").filter((line) => line.startsWith("data:")).map((line) => line.slice(5).trimStart()).join("\n");
     if (!data || data === "[DONE]") continue;
     const item = JSON.parse(data);
-    if (item.type === "error") throw new Error("Meta stream returned an error event");
+    if (item.type === "error") throw new MetaStreamError(item.error?.type);
     if (item.type === "message_start") message = { ...item.message };
     if (item.type === "content_block_start") blocks[item.index] = { ...item.content_block };
     if (item.type === "content_block_delta" && item.delta?.type === "text_delta") {
@@ -150,7 +170,7 @@ export function parseMetaStream(raw: string): Record<string, unknown> {
     }
     if (item.type === "message_delta" && message) {
       Object.assign(message, item.delta);
-      message.usage = { ...(message.usage as object ?? {}), ...item.usage };
+      message.usage = { ...numericUsage(message.usage), ...numericUsage(item.usage) };
     }
     if (item.type === "message_stop") completed = true;
   }
