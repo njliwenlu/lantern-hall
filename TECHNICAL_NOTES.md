@@ -20,7 +20,7 @@ claim: general equivalence. See [Limitations](#limitations).
 
 The final source was frozen before evaluation: **48/48 traces, 331/331 observations, zero errors**. The corpus was already public by this later run, although withheld from the API input; this is not a newly secret test set. Two unsuccessful earlier Muse attempts remain recorded as failures (output truncation and transport errors), not successful reconstructions. The static site replays the completed API run and executes its generated code locally; it never calls the model API.
 
-Use the footer’s **Recorded run** selector or [open the Muse run directly](https://njliwenlu.github.io/lantern-hall/?run=muse-spark-03). The default guided story and video remain the original Claude run. The original-run details below apply to `run-01` unless stated otherwise.
+Use the footer’s **Recorded run** selector or [open the Muse run directly](https://njliwenlu.github.io/lantern-hall/?run=muse-spark-03). The default guided story remains the original Claude run. The final one-minute video includes both Claude and Muse, with model-specific labels. The original-run details below apply to `run-01` unless stated otherwise.
 
 ## The site
 

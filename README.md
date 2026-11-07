@@ -2,44 +2,30 @@
 
 ### [Try the live demo →](https://njliwenlu.github.io/lantern-hall/)
 
-[Watch the one-minute video →](https://njliwenlu.github.io/lantern-hall/video/)
+[Watch the one-minute video →](https://njliwenlu.github.io/lantern-hall/video/) · [Explore the Muse run →](https://njliwenlu.github.io/lantern-hall/?run=muse-spark-03)
 
-*A museum of impossible physics.* An AI discovers hidden rules through experiments, then writes an executable reconstruction of the world.
+*A museum of impossible physics.* Claude and Meta’s Muse Spark independently discover hidden rules through experiments, then write executable reconstructions. Both frozen engines matched all 48 held-out scenarios: 331/331 observations.
 
-[Explore the independent Muse Spark run →](https://njliwenlu.github.io/lantern-hall/?run=muse-spark-03) · 49 experiments; frozen code matched 48/48 held-out scenarios (331/331 observations). The video and speech below follow the original Claude run.
+## 60-second speech
 
-## 60-second demo pitch
+We hid a game’s source code. Could AI rebuild it?
 
-**0–5s · The challenge**  
-“We hid a game’s source code. Could an AI discover its rules?”
+Claude guessed the visitor, its character, needs light to push. Visitor lit, crate dark: nothing. Visitor dark, crate lit: it slides. So Claude rejected its hypothesis.
 
-**5–20s · One discovery**  
-“Its guess: the visitor—the character it moves—needs light to push. Visitor lit, crate dark: the push fails. Visitor dark, crate lit: the crate slides. It rejected that hypothesis in the next round.”
+Two of thirty-six experiments. Here are six more. Five distinct implementations. We froze the final code.
 
-**20–26s · Six more experiments**  
-“Those were two of thirty-six experiments. Here are six more.”
+Now challenge it with another room. Seal its prediction before running the original. Reveal both: seven of seven observations match.
 
-**26–31s · Generated code**  
-“Five distinct implementations. We froze the final code.”
+Then forty-eight held-out scenarios, never shown to the AI. All three hundred thirty-one observations matched. Here’s one replay.
 
-**31–45s · Predict, seal, compare**  
-“Now challenge that reconstruction with another room. We seal its prediction before running the original. Reveal both. Watch the two engines side by side. Seven of seven observations match, including the starting state.”
+Next, Meta’s Muse Spark explored independently. Forty-nine experiments, its own code. All forty-eight held-out scenarios matched again.
 
-**45–56s · Held-out evidence**  
-“Forty-eight held-out tests, scored afterward—never feedback for the AI. All three hundred thirty-one observations matched, including starting states. Here’s one of those tests.”
+One small world, not general proof. Hidden rules, rebuilt as code.
 
-**56–60s · Close**  
-“One small world, not general proof. Hidden rules, rebuilt as code.”
-
-*Read the quoted words aloud. Times are rounded cues. The video shows selected discovery experiments and one held-out replay; the results grid covers all 48 tests.*
+*Exact spoken words for the 59.5-second video. Discovery is recorded; Predict executes both engines in your browser. Selected experiments and one held-out replay appear in the video. The same test corpus was withheld from both models’ inputs, but was already public by the later Muse run. This is a small experiment, not a general benchmark.*
 
 ## Run locally
 
-Requires Node 22.18+.
-
-```sh
-npm install
-npm run dev
-```
+Node 22.18+: `npm install`, then `npm run dev`.
 
 [Technical notes & evidence](TECHNICAL_NOTES.md)
