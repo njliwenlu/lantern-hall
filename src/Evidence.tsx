@@ -3,8 +3,20 @@ import { commitment, primaryEval, primaryRun, runs } from "./data.ts";
 export function Evidence({ open, onClose }: { open: boolean; onClose: () => void }) {
   const run = primaryRun;
   const init = run?.rounds.find((r) => r.init)?.init as Record<string, unknown> | undefined;
-  const cost = run?.rounds.reduce((a, r) => a + (Number(r.result?.total_cost_usd) || 0), 0) ?? 0;
-  const toolUses = run?.rounds.reduce((a, r) => a + (Number(r.result?.tool_use_events) || 0), 0) ?? 0;
+  const meta = run?.provider === "meta";
+  const results = run?.rounds.map((r) => r.result) ?? [];
+  const sumReported = (field: string) => results.length && results.every((r) => typeof r?.[field] === "number")
+    ? results.reduce((sum, r) => sum + (r![field] as number), 0) : null;
+  const cost = sumReported("total_cost_usd");
+  const attempts = sumReported("attempts");
+  const responseModels = [...new Set(results.flatMap((r) => typeof r?.model === "string" ? [r.model] : []))];
+  const tokenTotal = (field: string) => {
+    const usage = results.map((r) => r?.usage as Record<string, unknown> | undefined);
+    return usage.length && usage.every((u) => typeof u?.[field] === "number")
+      ? usage.reduce((sum, u) => sum + (u![field] as number), 0) : null;
+  };
+  const inputTokens = tokenTotal("input_tokens"), outputTokens = tokenTotal("output_tokens");
+  const toolUses = sumReported("tool_use_events");
   return (
     <div className={`lh-drawer ${open ? "is-open" : ""}`} aria-hidden={!open} role="dialog" aria-label="Evidence">
       <div className="lh-drawer-head">
@@ -20,35 +32,49 @@ export function Evidence({ open, onClose }: { open: boolean; onClose: () => void
           <section>
             <div className="lh-label">Temporal boundary</div>
             <p className="lh-small">
-              The rules and source of the original engine were withheld from the discovery model during the recorded run. They are public in this site and repository now, after the fact; the replica was frozen before the held-out corpus was revealed.
+              {meta ? "The original engine source and held-out traces were not included in this model’s input. The corpus was already public when this run began; this was input withholding, not a secret test set. The model had no tools or web access. Evaluation ran only after the reconstruction was frozen." : "The rules and source of the original engine were withheld from the discovery model during the recorded run. They are public in this site and repository now, after the fact; the replica was frozen before the held-out corpus was revealed."}
             </p>
           </section>
           <section>
             <div className="lh-label">Discovery process isolation ({run.runId})</div>
             <ul className="lh-kv">
               <li><span>model</span><b>{run.model}</b></li>
-              <li><span>process</span><b>{run.cli.binary}, one fresh process per round</b></li>
-              <li><span>flags</span><code>{run.cli.flags.join(" ")}</code></li>
-              <li><span>environment</span><b>{run.cli.env}</b></li>
-              <li><span>working dir</span><b>{run.cli.cwd}</b></li>
-              <li><span>init: tools</span><b>{JSON.stringify(init?.tools ?? "n/a")}</b></li>
-              <li><span>init: MCP servers</span><b>{JSON.stringify(init?.mcp_servers ?? "n/a")}</b></li>
-              <li><span>init: skills / commands</span><b>{JSON.stringify(init?.skills ?? "n/a")} / {JSON.stringify(init?.slash_commands ?? "n/a")}</b></li>
-              <li><span>tool-use events observed</span><b>{toolUses}</b></li>
-              <li><span>CLI version</span><b>{String(init?.claude_code_version ?? "n/a")}</b></li>
+              {meta ? <>
+                <li><span>provider / API</span><b>{run.provider} / {run.transport?.api ?? "not recorded"}</b></li>
+                <li><span>endpoint</span><code>{run.transport?.endpoint ?? "not recorded"}</code></li>
+                <li><span>requested model</span><b>{run.transport?.body.model ?? run.model}</b></li>
+                {responseModels.length > 0 && <li><span>response model</span><b>{responseModels.join(", ")}</b></li>}
+                <li><span>process</span><b>Stateless API request per round</b></li>
+                <li><span>tools field</span><b>{run.transport?.body.tools ?? "not recorded"}</b></li>
+                {run.transport?.body.thinking && <li><span>thinking setting</span><code>{JSON.stringify(run.transport.body.thinking)}</code></li>}
+                {run.transport?.body.output_config && <li><span>output settings</span><code>{JSON.stringify(run.transport.body.output_config)}</code></li>}
+                {inputTokens !== null && <li><span>recorded input tokens</span><b>{inputTokens.toLocaleString()}</b></li>}
+                {outputTokens !== null && <li><span>recorded output tokens</span><b>{outputTokens.toLocaleString()}</b></li>}
+                {attempts !== null && <li><span>request attempts</span><b>{attempts}</b></li>}
+              </> : run.cli && <>
+                <li><span>process</span><b>{run.cli.binary}, one fresh process per round</b></li>
+                <li><span>flags</span><code>{run.cli.flags.join(" ")}</code></li>
+                <li><span>environment</span><b>{run.cli.env}</b></li>
+                <li><span>working dir</span><b>{run.cli.cwd}</b></li>
+                <li><span>init: tools</span><b>{JSON.stringify(init?.tools ?? "n/a")}</b></li>
+                <li><span>init: MCP servers</span><b>{JSON.stringify(init?.mcp_servers ?? "n/a")}</b></li>
+                <li><span>init: skills / commands</span><b>{JSON.stringify(init?.skills ?? "n/a")} / {JSON.stringify(init?.slash_commands ?? "n/a")}</b></li>
+                <li><span>CLI version</span><b>{String(init?.claude_code_version ?? "n/a")}</b></li>
+              </>}
+              {toolUses !== null && <li><span>tool-use events observed</span><b>{toolUses}</b></li>}
               <li><span>prompt template sha256</span><code>{run.templateSha256.slice(0, 24)}…</code></li>
               <li><span>schema sha256</span><code>{run.schemaSha256.slice(0, 24)}…</code></li>
               <li><span>rounds / experiments</span><b>{run.rounds.length} / {run.experiments.length}</b></li>
-              <li><span>reported model cost</span><b>${cost.toFixed(2)}</b></li>
+              {cost !== null && <li><span>reported model cost</span><b>${cost.toFixed(2)}</b></li>}
             </ul>
-            <p className="lh-small lh-dim">
+            {!meta && run.cli && <p className="lh-small lh-dim">
               The init event also lists installed plugin and agent-type names; with an empty tool list none can be invoked. Raw stream logs stay private because they contain session ids and local paths; this public trace is sanitized from them.
-            </p>
+            </p>}
           </section>
           <section>
             <div className="lh-label">Comparators</div>
             <p className="lh-small">
-              During the run, validation feedback on the model’s own experiments came from an earlier comparator that tolerated some shape differences (for example a missing false flag). Before the final evaluation it was replaced by a strict recursive comparator (exact fields, types, order, lengths, trace length). The held-out result and the live duel on this page use the strict one.
+              {run.runId === "run-01" ? "During the run, validation feedback on the model’s own experiments came from an earlier comparator that tolerated some shape differences (for example a missing false flag). Before the final evaluation it was replaced by a strict recursive comparator (exact fields, types, order, lengths, trace length). The held-out result and the live duel on this page use the strict one." : "Feedback on the model’s own experiments used the same strict recursive comparator as the final evaluation and live comparison: exact fields, types, order, lengths, and trace length."}
             </p>
           </section>
           <section>
@@ -106,7 +132,7 @@ export function Evidence({ open, onClose }: { open: boolean; onClose: () => void
               <li><code>harness/schema.md</code>, <code>harness/prompt-template.md</code> everything the model was told</li>
               <li><code>artifacts/discovery/{run.runId}.json</code> sanitized trace: prompts’ hashes, replies, experiments, code versions</li>
               <li><code>artifacts/replica/{run.runId}.js</code> frozen generated reconstruction</li>
-              <li><code>artifacts/evaluation/{run.runId}.json</code>, <code>artifacts/heldout.json</code> sealed evaluation</li>
+              <li><code>artifacts/evaluation/{run.runId}.json</code>, <code>artifacts/heldout.json</code> held-out evaluation</li>
             </ul>
           </section>
         </div>

@@ -10,19 +10,23 @@ const ARROW: Record<string, string> = { N: "↑", S: "↓", E: "→", W: "←" }
 export function DiscoverView({ present }: { present: boolean }) {
   const run = primaryRun;
   const rounds = run?.rounds ?? [];
-  const [round, setRound] = useState<number>(Number(initialParams.round) || (rounds.some((r) => r.round === 2) ? 2 : rounds[0]?.round) || 1);
+  const hasGuidedStory = run?.runId === "run-01" && ["darkCrateLitPlayer", "litCrateDarkPlayer"].every((id) =>
+    run.experiments.some((e) => e.round === 2 && e.id === id && !!e.observations?.length));
+  const firstExperiment = run?.experiments.find((e) => !e.error && e.observations?.length);
+  const defaultRound = hasGuidedStory ? 2 : firstExperiment?.round ?? rounds[0]?.round ?? 1;
+  const [round, setRound] = useState<number>(Number(initialParams.round) || defaultRound);
   const rec = rounds.find((r) => r.round === round) ?? rounds[0];
   const exps = useMemo(() => run?.experiments.filter((e) => e.round === rec?.round) ?? [], [run, rec]);
-  const [expId, setExpId] = useState<string | null>(initialParams.exp ?? "darkCrateLitPlayer");
-  const [showAll, setShowAll] = useState(Boolean(initialParams.round || initialParams.exp));
+  const [expId, setExpId] = useState<string | null>(initialParams.exp ?? (hasGuidedStory ? "darkCrateLitPlayer" : firstExperiment?.id ?? null));
+  const [showAll, setShowAll] = useState(!hasGuidedStory || Boolean(initialParams.round || initialParams.exp));
   const exp = exps.find((e) => e.id === expId) ?? exps.find((e) => !e.error) ?? exps[0];
   const [step, setStep] = useState(Number(initialParams.step) || 0);
   const count = exp?.observations?.length ?? 0;
   // Guided playback is one continuous sequence of recorded observations.
   // Archive playback remains scoped to the selected experiment.
-  const guidedFrames = useMemo(() => ["darkCrateLitPlayer", "litCrateDarkPlayer"].flatMap((id) =>
+  const guidedFrames = useMemo(() => (hasGuidedStory ? ["darkCrateLitPlayer", "litCrateDarkPlayer"] : []).flatMap((id) =>
     (run?.experiments.find((e) => e.round === 2 && e.id === id)?.observations ?? []).map((_, index) => ({ id, step: index }))
-  ), [run]);
+  ), [run, hasGuidedStory]);
   const guidedIndex = guidedFrames.findIndex((f) => f.id === exp?.id && f.step === step);
   const setPlaybackStep = useCallback((index: number) => {
     if (showAll) { setStep(index); return; }
@@ -45,7 +49,7 @@ export function DiscoverView({ present }: { present: boolean }) {
   const actionResult = crateMoved ? "Crate slides" : visitorMoved ? "Visitor moves" : "Blocked · nothing moved";
 
   useEffect(() => {
-    hooks.discover = { setRound: (n: number) => { stopTour(); setRound(n); setShowAll(true); }, setExp: (id: string) => { stopTour(); setExpId(id); setShowAll(true); }, setGuidedExperiment: (id: string) => { if (!["darkCrateLitPlayer", "litCrateDarkPlayer"].includes(id)) return; stopTour(); setRound(2); setExpId(id); setShowAll(false); setStep(0); }, setStep: manualStep };
+    hooks.discover = { setRound: (n: number) => { stopTour(); setRound(n); setShowAll(true); }, setExp: (id: string) => { stopTour(); setExpId(id); setShowAll(true); }, setGuidedExperiment: (id: string) => { if (!hasGuidedStory || !["darkCrateLitPlayer", "litCrateDarkPlayer"].includes(id)) return; stopTour(); setRound(2); setExpId(id); setShowAll(false); setStep(0); }, setStep: manualStep };
   });
   useEffect(() => {
     if (step >= count) setStep(0);
@@ -67,7 +71,7 @@ export function DiscoverView({ present }: { present: boolean }) {
   return (
     <section className={`lh-view lh-discover ${showAll ? "is-browsing" : "is-guided"} ${present ? "is-present" : ""}`}>
       <aside className="lh-rail" aria-label="discovery rounds">
-        <div className="lh-guidance">
+        {hasGuidedStory && <div className="lh-guidance">
           <div className="lh-kicker">A two-experiment discovery</div>
           <h2 className="lh-h2 is-small">What makes a crate move?</h2>
           <p>The model suspected the visitor needed to stand in light. Two experiments put that idea to the test.</p>
@@ -83,10 +87,10 @@ export function DiscoverView({ present }: { present: boolean }) {
             <li className={exp?.id === "darkCrateLitPlayer" ? "is-current" : ""}>Light on the visitor.<small>The crate stays dark.</small></li>
             <li className={exp?.id === "litCrateDarkPlayer" ? "is-current" : ""}>Light on the crate.<small>The visitor stays dark.</small></li>
           </ol>
-        </div>
-        <details className="lh-advanced" open={showAll} onToggle={(e) => { const open = e.currentTarget.open; if (open) stopTour(); setShowAll(open); if (!open && !["darkCrateLitPlayer", "litCrateDarkPlayer"].includes(exp?.id ?? "")) { setRound(2); setExpId("darkCrateLitPlayer"); setStep(0); if (auto.playing) auto.toggle(); } }}>
+        </div>}
+        <details className="lh-advanced" open={showAll} onToggle={(e) => { const open = !hasGuidedStory || e.currentTarget.open; if (open) stopTour(); setShowAll(open); if (!open && !["darkCrateLitPlayer", "litCrateDarkPlayer"].includes(exp?.id ?? "")) { setRound(2); setExpId("darkCrateLitPlayer"); setStep(0); if (auto.playing) auto.toggle(); } }}>
         <summary>Explore all experiments</summary>
-        <button className="lh-chip" onClick={() => { setShowAll(false); setRound(2); setExpId("darkCrateLitPlayer"); setStep(0); if (auto.playing) auto.toggle(); }}>← Back to guided tour</button>
+        {hasGuidedStory && <button className="lh-chip" onClick={() => { setShowAll(false); setRound(2); setExpId("darkCrateLitPlayer"); setStep(0); if (auto.playing) auto.toggle(); }}>← Back to guided tour</button>}
         <p className="lh-small">The AI ran {run.experiments.length} experiments to uncover the rules. Choose one below, then press Play experiment. A round is one cycle of experiments and feedback.</p>
         <label className="lh-archive-label" htmlFor="experiment-picker">Choose an experiment</label>
         <select id="experiment-picker" className="lh-experiment-picker" value={exp?.id ?? ""} onChange={(e) => {
@@ -97,12 +101,12 @@ export function DiscoverView({ present }: { present: boolean }) {
         }}>
           {!exp && <option value="">Choose an experiment…</option>}
           {rounds.filter((r) => run.experiments.some((e) => e.round === r.round)).map((r) => <optgroup key={r.round} label={`Round ${r.round}`}>
-            {run.experiments.filter((e) => e.round === r.round).map((e) => <option key={e.id} value={e.id}>{experimentTitle(e.id)} · {e.actions.length} moves</option>)}
+            {run.experiments.filter((e) => e.round === r.round).map((e) => <option key={e.id} value={e.id}>{experimentTitle(e.id, run.runId, e.purpose)} · {e.actions.length} moves</option>)}
           </optgroup>)}
         </select>
         <details className="lh-advanced lh-run-details"><summary>Technical details</summary>
           <p className="lh-small">Run: {run.runId}<br />Model: {run.model}<br />Experiment ID: {exp?.id ?? "none"}</p>
-          <p className="lh-small">Each round uses a fresh, tool-free model process. The final code-only round is shown on Reconstruct.</p>
+          <p className="lh-small">{run.provider === "meta" ? "Each round uses a stateless API request with no tools." : "Each round uses a fresh, tool-free model process."} The final code-only round is shown on Reconstruct.</p>
         </details>
         </details>
       </aside>
@@ -110,8 +114,8 @@ export function DiscoverView({ present }: { present: boolean }) {
       <div className="lh-stage">
         <div className="lh-exp-head">
           <div className="lh-label">The observation room · round {rec?.round}</div>
-          <h2 className="lh-h2">{exp ? <>{experimentTitle(exp.id)}</> : rec?.round === run.maxRounds ? "Final round: code only" : "No experiment this round"}</h2>
-          {exp?.purpose && <p className="lh-quote">{exp.id === "darkCrateLitPlayer" ? "The visitor stands in light and pushes south. Watch the dark crate." : exp.id === "litCrateDarkPlayer" ? "Now the crate is lit, and the visitor is dark. Watch the northward push." : `“${exp.purpose}”`}</p>}
+          <h2 className="lh-h2">{exp ? <>{experimentTitle(exp.id, run.runId, exp.purpose)}</> : rec?.round === run.maxRounds ? "Final round: code only" : "No experiment this round"}</h2>
+          {exp?.purpose && <p className="lh-quote">{hasGuidedStory && exp.id === "darkCrateLitPlayer" ? "The visitor stands in light and pushes south. Watch the dark crate." : hasGuidedStory && exp.id === "litCrateDarkPlayer" ? "Now the crate is lit, and the visitor is dark. Watch the northward push." : `“${exp.purpose}”`}</p>}
         </div>
         {exp && exp.observations ? (
           <>

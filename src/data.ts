@@ -48,7 +48,13 @@ export interface DiscoveryRun {
   runId: string;
   status: string;
   model: string;
-  cli: { binary: string; flags: string[]; env: string; cwd: string };
+  cli?: { binary: string; flags: string[]; env: string; cwd: string };
+  provider?: string;
+  transport?: {
+    endpoint: string;
+    api: string;
+    body: { model: string; tools?: string; thinking?: Record<string, unknown>; output_config?: Record<string, unknown> };
+  };
   templateSha256: string;
   schemaSha256: string;
   maxRounds: number;
@@ -85,19 +91,33 @@ const heldMods = import.meta.glob<{ default: { traces: HeldoutTrace[] } }>("../a
 const displayMods = import.meta.glob<{ default: { runId: string; formatted: Record<string, string> } }>("../artifacts/code-display/*.json", { eager: true });
 const commitMods = import.meta.glob<{ default: { sha256: string; count: number; createdAt: string } }>("../artifacts/heldout-commitment.json", { eager: true });
 
-export const runs: DiscoveryRun[] = Object.values(discMods)
-  .map((m) => m.default)
-  .sort((a, b) => a.runId.localeCompare(b.runId));
-/** Primary run shown in the exhibit: the latest run that produced code. */
-export const primaryRun: DiscoveryRun | null = [...runs].reverse().find((r) => r.codeVersions.length) ?? runs[runs.length - 1] ?? null;
+const frozenMods = import.meta.glob<{ default: { runId: string; version: number; sha256: string } }>("../artifacts/replica/*.frozen.json", { eager: true });
+
+// Keep partial discovery artifacts out of the exhibit. Only complete, verified bundles
+// can be selected; the original recorded story remains the canonical default.
+export const DEFAULT_RUN_ID = "run-01";
+export const runs: DiscoveryRun[] = Object.values(discMods).map((m) => m.default)
+  .filter((r) => r.status !== "running").sort((a, b) => a.runId.localeCompare(b.runId));
 export const evaluations: Evaluation[] = Object.values(evalMods).map((m) => m.default);
-export const primaryEval: Evaluation | null = evaluations.find((e) => e.runId === primaryRun?.runId) ?? null;
 export const heldout: HeldoutTrace[] = Object.values(heldMods)[0]?.default.traces ?? [];
 export const commitment = Object.values(commitMods)[0]?.default ?? null;
-
-export const frozenCode: CodeVersion | null = primaryEval
-  ? primaryRun?.codeVersions.find((v) => v.version === primaryEval.replica.version) ?? null
-  : null;
+export const readyRuns = runs.filter((run) => {
+  const evaluation = evaluations.find((e) => e.runId === run.runId);
+  const frozen = Object.values(frozenMods).find((m) => m.default.runId === run.runId)?.default;
+  const code = run.codeVersions.find((v) => v.version === evaluation?.replica.version);
+  return run.status === "completed" && !!evaluation?.heldout.verified && !!code && !!frozen
+    && run.finalCodeVersion === code.version && frozen.version === code.version
+    && evaluation.replica.sha256 === code.sha256 && frozen.sha256 === code.sha256
+    && evaluation.heldout.sha256 === commitment?.sha256
+    && evaluation.heldout.committedSha256 === commitment?.sha256;
+});
+const requestedRun = typeof window === "undefined" ? null : new URLSearchParams(window.location.search).get("run");
+const selectedRun = readyRuns.find((r) => r.runId === (requestedRun ?? DEFAULT_RUN_ID));
+export const primaryRun: DiscoveryRun | null = selectedRun ?? readyRuns.find((r) => r.runId === DEFAULT_RUN_ID) ?? null;
+export const runSelectionNotice = requestedRun !== null && !selectedRun
+  ? `Run ${requestedRun || "(empty)"} is not available in this build; ${primaryRun ? `showing ${primaryRun.runId}.` : "no completed default run is available."}` : null;
+export const primaryEval: Evaluation | null = evaluations.find((e) => e.runId === primaryRun?.runId) ?? null;
+export const frozenCode: CodeVersion | null = primaryRun?.codeVersions.find((v) => v.version === primaryEval?.replica.version) ?? null;
 
 /** Prettier-formatted source for reading (display only). Falls back to the verbatim submission. */
 export function displaySource(runId: string, v: CodeVersion): { text: string; formatted: boolean } {

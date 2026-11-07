@@ -19,4 +19,6 @@ const TITLES: Record<string, string> = {
   darkOnDoor: "Can a dark crate leave a closed door?", cx1: "Can filtered light power a crate slide?",
   cx2: "How does moving a crate change a door?", cx3: "How do glass, doors and edge pushes interact?",
 };
-export const experimentTitle = (id: string) => TITLES[id] ?? id.replace(/([a-z])([A-Z])/g, "$1 $2").replace(/[_-]/g, " ");
+export const experimentTitle = (id: string, runId = "run-01", purpose?: string) =>
+  (runId === "run-01" ? TITLES[id] : purpose?.trim())
+  || id.replace(/([a-z])([A-Z])/g, "$1 $2").replace(/[_-]/g, " ");

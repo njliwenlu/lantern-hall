@@ -14,13 +14,21 @@ What this claims: in one recorded run, a tool-free model that saw only the schem
 observations wrote code that matched the hidden engine on these 48 unseen traces. What it does not
 claim: general equivalence. See [Limitations](#limitations).
 
+## Independent Muse Spark run
+
+`muse-spark-03` used Meta’s `muse-spark-1.3` Messages API for 10 rounds and 49 experiments, producing three code submissions. It received the schema, its own recorded observations and validation feedback; no source, tools, previous Claude discoveries or held-out cases were supplied. The strict comparator was used throughout this run. After finding counterexamples to v1, Muse submitted corrected code in round 9 and its final v3 in round 10.
+
+The final source was frozen before evaluation: **48/48 traces, 331/331 observations, zero errors**. The corpus was already public by this later run, although withheld from the API input; this is not a newly secret test set. Two unsuccessful earlier Muse attempts remain recorded as failures (output truncation and transport errors), not successful reconstructions. The static site replays the completed API run and executes its generated code locally; it never calls the model API.
+
+Use the footer’s **Recorded run** selector or [open the Muse run directly](https://njliwenlu.github.io/lantern-hall/?run=muse-spark-03). The default guided story and video remain the original Claude run. The original-run details below apply to `run-01` unless stated otherwise.
+
 ## The site
 
 **[Open the live exhibit](https://njliwenlu.github.io/lantern-hall/)** · hosted publicly on GitHub Pages.
 
 Start with **Watch the discovery**, follow the two recorded experiments, then **Try a prediction**.
 Predict opens with a prepared room: **Predict with the AI engine**, then **Run original & compare**.
-Custom room and move controls are available under **Customize the room & moves**.
+Custom room and move controls are available under **Build your own room (advanced)**.
 
 A static single-page app (Vite + React, relative `base: "./"`). It has no backend, no model API
 and no server-side code execution.
@@ -161,7 +169,7 @@ module and loads a new one. Host stack exhaustion is caught the same way. Node `
 
 ## Limitations
 
-- One exhibit, one recorded discovery run, one model. 48 traces is a small test. Exact agreement on
+- One exhibit, two completed discovery runs with different models. 48 traces is a small test. Exact agreement on
   it is evidence, not proof of equivalence.
 - The audience presets in `src/presets.ts` were written after discovery by the implementer, who knows
   the rules. Rooms you edit in the browser are new, but the site cannot prove that they differ from

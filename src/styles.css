@@ -477,3 +477,6 @@ button:focus-visible,a:focus-visible,summary:focus-visible { outline:2px solid v
 
 .lh-evidence-link { font-size:13px; color:var(--text); }
 .lh-app.is-present .lh-discover.is-browsing .lh-notes { max-height:620px; overflow:auto; overscroll-behavior:contain; }
+
+.lh-run-picker { display:flex; flex-wrap:wrap; max-width:100%; align-items:center; gap:8px; }
+.lh-run-picker select { min-width:0; max-width:min(300px,100%); padding:5px 8px; font:inherit; color:var(--text); border:1px solid var(--line); background:var(--ink); }

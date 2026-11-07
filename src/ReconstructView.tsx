@@ -89,7 +89,7 @@ export function ReconstructView({ present }: { present: boolean }) {
           })}
         </ol>
         <p className="lh-small lh-dim">
-          “Own experiments” is the feedback the model saw during the run; it was computed by an earlier, more lenient comparator. All held-out scores use the final strict field-by-field comparator. Held-out scores for non-frozen versions were computed after the run for this exhibit; the model never saw held-out data or scores.
+          “Own experiments” is the feedback the model saw during the run; {run.runId === "run-01" ? "it was computed by an earlier, more lenient comparator." : "it used the same strict comparator as the final evaluation."} All held-out scores use the final strict field-by-field comparator. Held-out scores for non-frozen versions were computed after the run for this exhibit; the model never saw held-out data or scores.
         </p>
       </aside>
 
@@ -124,7 +124,7 @@ export function ReconstructView({ present }: { present: boolean }) {
             </pre>
             <div className="lh-codenote">
               {curText?.formatted
-                ? "The model submitted this as a single line of minified JavaScript. Shown reformatted with Prettier (whitespace only); the hash and the executed code are the verbatim submission."
+                ? `${cur.source.trim().split("\n").length === 1 ? "The model submitted this as a single line of minified JavaScript. " : ""}Shown reformatted with Prettier; the hash and executed code are the verbatim submission.`
                 : "Verbatim submission."}
             </div>
           </div>

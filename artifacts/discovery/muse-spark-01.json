@@ -1,0 +1,4925 @@
+{
+ "runId": "muse-spark-01",
+ "status": "failed",
+ "model": "muse-spark-1.3",
+ "provider": "meta",
+ "transport": {
+  "endpoint": "https://api.meta.ai/v1/messages",
+  "api": "messages",
+  "auth": "Bearer token from MODEL_API_KEY environment variable (never recorded)",
+  "body": {
+   "model": "muse-spark-1.3",
+   "max_tokens": 16384,
+   "system": "<SYSTEM_PROMPT from harness/prompt-template.md>",
+   "messages": "[{ role: user, content: <round prompt> }]",
+   "thinking": {
+    "type": "adaptive"
+   },
+   "output_config": {
+    "effort": "high"
+   },
+   "tools": "omitted"
+  },
+  "timeoutMs": 600000,
+  "maxRetries": 1,
+  "retryOn": "network error, timeout, HTTP 408/409/429/5xx (never 4xx auth/validation)"
+ },
+ "templateSha256": "7808287026a3f038430e7ddc194d0626fce45adf396725e2f42532f703cfbf23",
+ "schemaSha256": "83be7da8ba9937b9f2c6ee33738b87e3b23fbffa863b2d51d356c5894ccdf11a",
+ "maxRounds": 10,
+ "maxExperimentsPerRound": 6,
+ "rounds": [
+  {
+   "round": 1,
+   "startedAt": "2026-11-07T22:28:29.499Z",
+   "durationMs": 16647,
+   "promptSha256": "826d5a848db2bcbbfdd07d2b275b3b7046b7dad0caa499da699a15f00f49b919",
+   "promptChars": 3712,
+   "exitCode": null,
+   "experimentIds": [
+    "e_lamp_e",
+    "e_lamp_s",
+    "e_wall_block",
+    "e_glass",
+    "e_sensor_door",
+    "e_crate_push"
+   ],
+   "rejectedExperiments": [],
+   "result": {
+    "provider": "meta",
+    "requestedModel": "muse-spark-1.3",
+    "attempts": 1,
+    "httpStatus": 200,
+    "model": "muse-spark-1.3",
+    "stop_reason": "end_turn",
+    "usage": {
+     "cache_creation_input_tokens": 0,
+     "cache_read_input_tokens": 0,
+     "input_tokens": 1143,
+     "output_tokens": 2841
+    },
+    "content_block_types": [
+     "redacted_thinking",
+     "text"
+    ],
+    "tool_use_events": 0
+   },
+   "responseText": "{\n  \"notes\": \"Round1: probe basics - movement, lamp beam shape, wall shadow, glass filter, sensor-door link, crate pushing and lit flag.\",\n  \"hypotheses\": [\n    {\n      \"id\": \"H1\",\n      \"statement\": \"Lamps emit light in facing dir along row/col until edge or blocker\",\n      \"status\": \"proposed\",\n      \"evidence\": \"none yet\"\n    },\n    {\n      \"id\": \"H2\",\n      \"statement\": \"Walls block movement and light; lamps block movement\",\n      \"status\": \"proposed\",\n      \"evidence\": \"none yet\"\n    },\n    {\n      \"id\": \"H3\",\n      \"statement\": \"Glass filters/blocks light by color; sensor light string = light on its cell; door open iff sensor lit (maybe color match)\",\n      \"status\": \"proposed\",\n      \"evidence\": \"none yet\"\n    },\n    {\n      \"id\": \"H4\",\n      \"statement\": \"Player pushes single crate if destination free; crate lit = illuminated; doors block when closed\",\n      \"status\": \"proposed\",\n      \"evidence\": \"none yet\"\n    }\n  ],\n  \"experiments\": [\n    {\n      \"id\": \"e_lamp_e\",\n      \"purpose\": \"white lamp facing E: beam shape + basic movement\",\n      \"layout\": {\n        \"walls\": [],\n        \"lamps\": [\n          {\n            \"x\": 0,\n            \"y\": 3,\n            \"color\": \"white\",\n            \"dir\": \"E\"\n          }\n        ],\n        \"glass\": [],\n        \"sensors\": [],\n        \"doors\": [],\n        \"player\": {\n          \"x\": 6,\n          \"y\": 6\n        },\n        \"crates\": []\n      },\n      \"actions\": [\n        \"N\",\n        \"W\"\n      ]\n    },\n    {\n      \"id\": \"e_lamp_s\",\n      \"purpose\": \"white lamp facing S: verify column beam\",\n      \"layout\": {\n        \"walls\": [],\n        \"lamps\": [\n          {\n            \"x\": 3,\n            \"y\": 0,\n            \"color\": \"white\",\n            \"dir\": \"S\"\n          }\n        ],\n        \"glass\": [],\n        \"sensors\": [],\n        \"doors\": [],\n        \"player\": {\n          \"x\": 6,\n          \"y\": 6\n        },\n        \"crates\": []\n      },\n      \"actions\": [\n        \"N\"\n      ]\n    },\n    {\n      \"id\": \"e_wall_block\",\n      \"purpose\": \"does wall block light beam and movement\",\n      \"layout\": {\n        \"walls\": [\n          {\n            \"x\": 3,\n            \"y\": 3\n          }\n        ],\n        \"lamps\": [\n          {\n            \"x\": 0,\n            \"y\": 3,\n            \"color\": \"white\",\n            \"dir\": \"E\"\n          }\n        ],\n        \"glass\": [],\n        \"sensors\": [],\n        \"doors\": [],\n        \"player\": {\n          \"x\": 6,\n          \"y\": 6\n        },\n        \"crates\": []\n      },\n      \"actions\": [\n        \"N\"\n      ]\n    },\n    {\n      \"id\": \"e_glass\",\n      \"purpose\": \"white lamp through red glass: filter effect\",\n      \"layout\": {\n        \"walls\": [],\n        \"lamps\": [\n          {\n            \"x\": 0,\n            \"y\": 3,\n            \"color\": \"white\",\n            \"dir\": \"E\"\n          }\n        ],\n        \"glass\": [\n          {\n            \"x\": 2,\n            \"y\": 3,\n            \"color\": \"red\"\n          }\n        ],\n        \"sensors\": [],\n        \"doors\": [],\n        \"player\": {\n          \"x\": 6,\n          \"y\": 6\n        },\n        \"crates\": []\n      },\n      \"actions\": [\n        \"N\"\n      ]\n    },\n    {\n      \"id\": \"e_sensor_door\",\n      \"purpose\": \"sensor in beam linked to door elsewhere; test sensor light string and door open + walking into door\",\n      \"layout\": {\n        \"walls\": [],\n        \"lamps\": [\n          {\n            \"x\": 0,\n            \"y\": 3,\n            \"color\": \"white\",\n            \"dir\": \"E\"\n          }\n        ],\n        \"glass\": [],\n        \"sensors\": [\n          {\n            \"id\": \"s1\",\n            \"x\": 5,\n            \"y\": 3\n          }\n        ],\n        \"doors\": [\n          {\n            \"id\": \"d1\",\n            \"x\": 1,\n            \"y\": 6,\n            \"color\": \"white\",\n            \"sensor\": \"s1\"\n          }\n        ],\n        \"player\": {\n          \"x\": 0,\n          \"y\": 6\n        },\n        \"crates\": []\n      },\n      \"actions\": [\n        \"E\",\n        \"E\"\n      ]\n    },\n    {\n      \"id\": \"e_crate_push\",\n      \"purpose\": \"push crate along beam; observe crate lit and movement blocking\",\n      \"layout\": {\n        \"walls\": [],\n        \"lamps\": [\n          {\n            \"x\": 0,\n            \"y\": 3,\n            \"color\": \"white\",\n            \"dir\": \"E\"\n          }\n        ],\n        \"glass\": [],\n        \"sensors\": [],\n        \"doors\": [],\n        \"player\": {\n          \"x\": 2,\n          \"y\": 3\n        },\n        \"crates\": [\n          {\n            \"id\": \"c1\",\n            \"x\": 3,\n            \"y\": 3\n          }\n        ]\n      },\n      \"actions\": [\n        \"E\",\n        \"E\"\n      ]\n    }\n  ],\n  \"code\": null,\n  \"final\": false\n}",
+   "notes": "Round1: probe basics - movement, lamp beam shape, wall shadow, glass filter, sensor-door link, crate pushing and lit flag.",
+   "hypotheses": [
+    {
+     "id": "H1",
+     "statement": "Lamps emit light in facing dir along row/col until edge or blocker",
+     "status": "proposed",
+     "evidence": "none yet"
+    },
+    {
+     "id": "H2",
+     "statement": "Walls block movement and light; lamps block movement",
+     "status": "proposed",
+     "evidence": "none yet"
+    },
+    {
+     "id": "H3",
+     "statement": "Glass filters/blocks light by color; sensor light string = light on its cell; door open iff sensor lit (maybe color match)",
+     "status": "proposed",
+     "evidence": "none yet"
+    },
+    {
+     "id": "H4",
+     "statement": "Player pushes single crate if destination free; crate lit = illuminated; doors block when closed",
+     "status": "proposed",
+     "evidence": "none yet"
+    }
+   ],
+   "final": false
+  },
+  {
+   "round": 2,
+   "startedAt": "2026-11-07T22:28:46.150Z",
+   "durationMs": 33900,
+   "promptSha256": "0aa5f7ef99d3edd187e01139848a40e865eff9ce7c27652fffd135a76cf3117a",
+   "promptChars": 9590,
+   "exitCode": null,
+   "experimentIds": [
+    "x_mix3",
+    "x_glassrow",
+    "x_slidewall",
+    "x_colordoor",
+    "x_pblock",
+    "x_bump"
+   ],
+   "rejectedExperiments": [],
+   "result": {
+    "provider": "meta",
+    "requestedModel": "muse-spark-1.3",
+    "attempts": 1,
+    "httpStatus": 200,
+    "model": "muse-spark-1.3",
+    "stop_reason": "end_turn",
+    "usage": {
+     "cache_creation_input_tokens": 0,
+     "cache_read_input_tokens": 0,
+     "input_tokens": 2812,
+     "output_tokens": 5180
+    },
+    "content_block_types": [
+     "redacted_thinking",
+     "text"
+    ],
+    "tool_use_events": 0
+   },
+   "responseText": "{\"notes\": \"Round1 shows beams, wall block, glass white->red, open door walkable, crates block light and slide far on push. Now test color mixing, glass series, slide limits, door color rule, player block, bump rules.\", \"hypotheses\": [{\"id\": \"H1\", \"statement\": \"Beams go straight until wall/crate/edge; lamp cell itself dark\", \"status\": \"supported\", \"evidence\": \"e_lamp_e,e_wall_block,e_crate_push\"}, {\"id\": \"H2\", \"statement\": \"Crates slide on push until obstacle; player transparent? doors need color match?\", \"status\": \"proposed\", \"evidence\": \"e_crate_push slide to edge needs limits\"}, {\"id\": \"H3\", \"statement\": \"Glass recolors white to its color; serial/additive mixing unknown\", \"status\": \"proposed\", \"evidence\": \"e_glass\"}, {\"id\": \"H4\", \"statement\": \"Walls/lamps/closed doors/2 crates block movement; open doors walkable\", \"status\": \"proposed\", \"evidence\": \"e_sensor_door\"}], \"experiments\": [{\"id\": \"x_mix3\", \"purpose\": \"red+green opposite plus blue crossing: additive mix and lamp blocking\", \"layout\": {\"walls\": [], \"lamps\": [{\"x\": 0, \"y\": 2, \"color\": \"red\", \"dir\": \"E\"}, {\"x\": 6, \"y\": 2, \"color\": \"green\", \"dir\": \"W\"}, {\"x\": 2, \"y\": 0, \"color\": \"blue\", \"dir\": \"S\"}], \"glass\": [], \"sensors\": [], \"doors\": [], \"player\": {\"x\": 0, \"y\": 6}, \"crates\": []}, \"actions\": [\"N\"]}, {\"id\": \"x_glassrow\", \"purpose\": \"white through R then G then B in series\", \"layout\": {\"walls\": [], \"lamps\": [{\"x\": 0, \"y\": 3, \"color\": \"white\", \"dir\": \"E\"}], \"glass\": [{\"x\": 2, \"y\": 3, \"color\": \"red\"}, {\"x\": 3, \"y\": 3, \"color\": \"green\"}, {\"x\": 4, \"y\": 3, \"color\": \"blue\"}], \"sensors\": [], \"doors\": [], \"player\": {\"x\": 0, \"y\": 6}, \"crates\": []}, \"actions\": [\"N\"]}, {\"id\": \"x_slidewall\", \"purpose\": \"push crate toward wall: slide distance and player final pos\", \"layout\": {\"walls\": [{\"x\": 5, \"y\": 3}], \"lamps\": [], \"glass\": [], \"sensors\": [], \"doors\": [], \"player\": {\"x\": 1, \"y\": 3}, \"crates\": [{\"id\": \"c1\", \"x\": 2, \"y\": 3}]}, \"actions\": [\"E\", \"E\", \"E\"]}, {\"id\": \"x_colordoor\", \"purpose\": \"red light on 3 sensors with red/blue/white doors: color match rule\", \"layout\": {\"walls\": [], \"lamps\": [{\"x\": 0, \"y\": 0, \"color\": \"red\", \"dir\": \"E\"}], \"glass\": [], \"sensors\": [{\"id\": \"s1\", \"x\": 2, \"y\": 0}, {\"id\": \"s2\", \"x\": 4, \"y\": 0}, {\"id\": \"s3\", \"x\": 5, \"y\": 0}], \"doors\": [{\"id\": \"d1\", \"x\": 0, \"y\": 6, \"color\": \"red\", \"sensor\": \"s1\"}, {\"id\": \"d2\", \"x\": 1, \"y\": 6, \"color\": \"blue\", \"sensor\": \"s2\"}, {\"id\": \"d3\", \"x\": 2, \"y\": 6, \"color\": \"white\", \"sensor\": \"s3\"}], \"player\": {\"x\": 6, \"y\": 6}, \"crates\": []}, \"actions\": [\"N\"]}, {\"id\": \"x_pblock\", \"purpose\": \"player starts in beam then steps out: does player block sensor\", \"layout\": {\"walls\": [], \"lamps\": [{\"x\": 0, \"y\": 3, \"color\": \"white\", \"dir\": \"E\"}], \"glass\": [], \"sensors\": [{\"id\": \"s1\", \"x\": 5, \"y\": 3}], \"doors\": [{\"id\": \"d1\", \"x\": 6, \"y\": 6, \"color\": \"white\", \"sensor\": \"s1\"}], \"player\": {\"x\": 3, \"y\": 3}, \"crates\": []}, \"actions\": [\"N\"]}, {\"id\": \"x_bump\", \"purpose\": \"bump wall/lamp/closed door/crate-crate from center\", \"layout\": {\"walls\": [{\"x\": 3, \"y\": 2}], \"lamps\": [{\"x\": 3, \"y\": 4, \"color\": \"white\", \"dir\": \"N\"}], \"glass\": [], \"sensors\": [{\"id\": \"s1\", \"x\": 6, \"y\": 6}], \"doors\": [{\"id\": \"d1\", \"x\": 2, \"y\": 3, \"color\": \"white\", \"sensor\": \"s1\"}], \"player\": {\"x\": 3, \"y\": 3}, \"crates\": [{\"id\": \"c1\", \"x\": 4, \"y\": 3}, {\"id\": \"c2\", \"x\": 5, \"y\": 3}]}, \"actions\": [\"N\", \"S\", \"W\", \"E\"]}], \"code\": null, \"final\": false}",
+   "notes": "Round1 shows beams, wall block, glass white->red, open door walkable, crates block light and slide far on push. Now test color mixing, glass series, slide limits, door color rule, player block, bump rules.",
+   "hypotheses": [
+    {
+     "id": "H1",
+     "statement": "Beams go straight until wall/crate/edge; lamp cell itself dark",
+     "status": "supported",
+     "evidence": "e_lamp_e,e_wall_block,e_crate_push"
+    },
+    {
+     "id": "H2",
+     "statement": "Crates slide on push until obstacle; player transparent? doors need color match?",
+     "status": "proposed",
+     "evidence": "e_crate_push slide to edge needs limits"
+    },
+    {
+     "id": "H3",
+     "statement": "Glass recolors white to its color; serial/additive mixing unknown",
+     "status": "proposed",
+     "evidence": "e_glass"
+    },
+    {
+     "id": "H4",
+     "statement": "Walls/lamps/closed doors/2 crates block movement; open doors walkable",
+     "status": "proposed",
+     "evidence": "e_sensor_door"
+    }
+   ],
+   "final": false
+  },
+  {
+   "round": 3,
+   "startedAt": "2026-11-07T22:29:20.053Z",
+   "durationMs": 63567,
+   "promptSha256": "4a82c390b90b68c9deed28524884dd3c7ced66021dfb492f16e8d3e4420b0812",
+   "promptChars": 16879,
+   "exitCode": null,
+   "experimentIds": [
+    "t_push_dark",
+    "t_push_litwall",
+    "t_glass_rg",
+    "t_white_doors",
+    "t_mix_door",
+    "t_doorblock"
+   ],
+   "rejectedExperiments": [],
+   "result": {
+    "provider": "meta",
+    "requestedModel": "muse-spark-1.3",
+    "attempts": 1,
+    "httpStatus": 200,
+    "model": "muse-spark-1.3",
+    "stop_reason": "end_turn",
+    "usage": {
+     "cache_creation_input_tokens": 0,
+     "cache_read_input_tokens": 0,
+     "input_tokens": 5069,
+     "output_tokens": 10223
+    },
+    "content_block_types": [
+     "redacted_thinking",
+     "text"
+    ],
+    "tool_use_events": 0
+   },
+   "responseText": "{\n  \"notes\": \"Learned beams additive, glass overwrites white, doors need exact color, player transparent, closed doors/lamps/walls block move. Testing crate slide condition, colored glass filter, white vs mixed door rule, door light blocking.\",\n  \"hypotheses\": [\n    {\n      \"id\": \"H1\",\n      \"statement\": \"Beams straight from lamp-adjacent cell until wall/lamp/crate/edge; player/sensor/glass transparent; lamp cell dark; colors add by union\",\n      \"status\": \"supported\",\n      \"evidence\": \"e_lamp_e,e_wall_block,x_mix3,x_pblock,x_colordoor\"\n    },\n    {\n      \"id\": \"H2\",\n      \"statement\": \"Crates slide far on push; push fails if unlit or if slide path blocked (needs lit test)\",\n      \"status\": \"proposed\",\n      \"evidence\": \"e_crate_push vs x_slidewall\"\n    },\n    {\n      \"id\": \"H3\",\n      \"statement\": \"Glass sets beam color to its color (overwrite); door opens iff sensor light exactly equals door color\",\n      \"status\": \"proposed\",\n      \"evidence\": \"x_glassrow,x_colordoor\"\n    },\n    {\n      \"id\": \"H4\",\n      \"statement\": \"Walls/lamps/closed doors/crate-crate block move; open doors walkable; crates block light and lit=any light on cell\",\n      \"status\": \"proposed\",\n      \"evidence\": \"x_bump,e_sensor_door\"\n    }\n  ],\n  \"experiments\": [\n    {\n      \"id\": \"t_push_dark\",\n      \"purpose\": \"does unlit crate with clear path move\",\n      \"layout\": {\n        \"walls\": [],\n        \"lamps\": [],\n        \"glass\": [],\n        \"sensors\": [],\n        \"doors\": [],\n        \"player\": {\n          \"x\": 1,\n          \"y\": 3\n        },\n        \"crates\": [\n          {\n            \"id\": \"c1\",\n            \"x\": 2,\n            \"y\": 3\n          }\n        ]\n      },\n      \"actions\": [\n        \"E\",\n        \"E\"\n      ]\n    },\n    {\n      \"id\": \"t_push_litwall\",\n      \"purpose\": \"lit crate push toward wall, slide vs stuck\",\n      \"layout\": {\n        \"walls\": [\n          {\n            \"x\": 5,\n            \"y\": 3\n          }\n        ],\n        \"lamps\": [\n          {\n            \"x\": 0,\n            \"y\": 3,\n            \"color\": \"white\",\n            \"dir\": \"E\"\n          }\n        ],\n        \"glass\": [],\n        \"sensors\": [],\n        \"doors\": [],\n        \"player\": {\n          \"x\": 1,\n          \"y\": 3\n        },\n        \"crates\": [\n          {\n            \"id\": \"c1\",\n            \"x\": 2,\n            \"y\": 3\n          }\n        ]\n      },\n      \"actions\": [\n        \"E\"\n      ]\n    },\n    {\n      \"id\": \"t_glass_rg\",\n      \"purpose\": \"red beam through green then blue glass plus lit flag on colored crate\",\n      \"layout\": {\n        \"walls\": [],\n        \"lamps\": [\n          {\n            \"x\": 0,\n            \"y\": 3,\n            \"color\": \"red\",\n            \"dir\": \"E\"\n          }\n        ],\n        \"glass\": [\n          {\n            \"x\": 2,\n            \"y\": 3,\n            \"color\": \"green\"\n          },\n          {\n            \"x\": 4,\n            \"y\": 3,\n            \"color\": \"blue\"\n          }\n        ],\n        \"sensors\": [],\n        \"doors\": [],\n        \"player\": {\n          \"x\": 0,\n          \"y\": 6\n        },\n        \"crates\": [\n          {\n            \"id\": \"c1\",\n            \"x\": 6,\n            \"y\": 3\n          }\n        ]\n      },\n      \"actions\": [\n        \"N\"\n      ]\n    },\n    {\n      \"id\": \"t_white_doors\",\n      \"purpose\": \"white light on red blue white doors\",\n      \"layout\": {\n        \"walls\": [],\n        \"lamps\": [\n          {\n            \"x\": 0,\n            \"y\": 0,\n            \"color\": \"white\",\n            \"dir\": \"E\"\n          }\n        ],\n        \"glass\": [],\n        \"sensors\": [\n          {\n            \"id\": \"s1\",\n            \"x\": 2,\n            \"y\": 0\n          },\n          {\n            \"id\": \"s2\",\n            \"x\": 4,\n            \"y\": 0\n          },\n          {\n            \"id\": \"s3\",\n            \"x\": 5,\n            \"y\": 0\n          }\n        ],\n        \"doors\": [\n          {\n            \"id\": \"d1\",\n            \"x\": 0,\n            \"y\": 6,\n            \"color\": \"red\",\n            \"sensor\": \"s1\"\n          },\n          {\n            \"id\": \"d2\",\n            \"x\": 1,\n            \"y\": 6,\n            \"color\": \"blue\",\n            \"sensor\": \"s2\"\n          },\n          {\n            \"id\": \"d3\",\n            \"x\": 2,\n            \"y\": 6,\n            \"color\": \"white\",\n            \"sensor\": \"s3\"\n          }\n        ],\n        \"player\": {\n          \"x\": 6,\n          \"y\": 6\n        },\n        \"crates\": []\n      },\n      \"actions\": [\n        \"N\"\n      ]\n    },\n    {\n      \"id\": \"t_mix_door\",\n      \"purpose\": \"red+green overlap gr on red green white doors, also sensor transparency\",\n      \"layout\": {\n        \"walls\": [],\n        \"lamps\": [\n          {\n            \"x\": 0,\n            \"y\": 2,\n            \"color\": \"red\",\n            \"dir\": \"E\"\n          },\n          {\n            \"x\": 6,\n            \"y\": 2,\n            \"color\": \"green\",\n            \"dir\": \"W\"\n          }\n        ],\n        \"glass\": [],\n        \"sensors\": [\n          {\n            \"id\": \"s1\",\n            \"x\": 2,\n            \"y\": 2\n          },\n          {\n            \"id\": \"s2\",\n            \"x\": 3,\n            \"y\": 2\n          },\n          {\n            \"id\": \"s3\",\n            \"x\": 4,\n            \"y\": 2\n          }\n        ],\n        \"doors\": [\n          {\n            \"id\": \"d1\",\n            \"x\": 0,\n            \"y\": 6,\n            \"color\": \"red\",\n            \"sensor\": \"s1\"\n          },\n          {\n            \"id\": \"d2\",\n            \"x\": 1,\n            \"y\": 6,\n            \"color\": \"green\",\n            \"sensor\": \"s2\"\n          },\n          {\n            \"id\": \"d3\",\n            \"x\": 2,\n            \"y\": 6,\n            \"color\": \"white\",\n            \"sensor\": \"s3\"\n          }\n        ],\n        \"player\": {\n          \"x\": 6,\n          \"y\": 6\n        },\n        \"crates\": []\n      },\n      \"actions\": [\n        \"N\"\n      ]\n    },\n    {\n      \"id\": \"t_doorblock\",\n      \"purpose\": \"do closed vs open doors block beam\",\n      \"layout\": {\n        \"walls\": [],\n        \"lamps\": [\n          {\n            \"x\": 0,\n            \"y\": 1,\n            \"color\": \"white\",\n            \"dir\": \"E\"\n          },\n          {\n            \"x\": 0,\n            \"y\": 3,\n            \"color\": \"white\",\n            \"dir\": \"E\"\n          },\n          {\n            \"x\": 0,\n            \"y\": 5,\n            \"color\": \"white\",\n            \"dir\": \"E\"\n          }\n        ],\n        \"glass\": [],\n        \"sensors\": [\n          {\n            \"id\": \"s_dark\",\n            \"x\": 6,\n            \"y\": 6\n          },\n          {\n            \"id\": \"s_trig\",\n            \"x\": 1,\n            \"y\": 5\n          },\n          {\n            \"id\": \"s_behC\",\n            \"x\": 4,\n            \"y\": 1\n          },\n          {\n            \"id\": \"s_behO\",\n            \"x\": 4,\n            \"y\": 3\n          }\n        ],\n        \"doors\": [\n          {\n            \"id\": \"d_c\",\n            \"x\": 2,\n            \"y\": 1,\n            \"color\": \"white\",\n            \"sensor\": \"s_dark\"\n          },\n          {\n            \"id\": \"d_o\",\n            \"x\": 2,\n            \"y\": 3,\n            \"color\": \"white\",\n            \"sensor\": \"s_trig\"\n          },\n          {\n            \"id\": \"d_x\",\n            \"x\": 5,\n            \"y\": 6,\n            \"color\": \"white\",\n            \"sensor\": \"s_behC\"\n          },\n          {\n            \"id\": \"d_y\",\n            \"x\": 6,\n            \"y\": 0,\n            \"color\": \"white\",\n            \"sensor\": \"s_behO\"\n          }\n        ],\n        \"player\": {\n          \"x\": 0,\n          \"y\": 6\n        },\n        \"crates\": []\n      },\n      \"actions\": [\n        \"N\"\n      ]\n    }\n  ],\n  \"code\": null,\n  \"final\": false\n}",
+   "notes": "Learned beams additive, glass overwrites white, doors need exact color, player transparent, closed doors/lamps/walls block move. Testing crate slide condition, colored glass filter, white vs mixed door rule, door light blocking.",
+   "hypotheses": [
+    {
+     "id": "H1",
+     "statement": "Beams straight from lamp-adjacent cell until wall/lamp/crate/edge; player/sensor/glass transparent; lamp cell dark; colors add by union",
+     "status": "supported",
+     "evidence": "e_lamp_e,e_wall_block,x_mix3,x_pblock,x_colordoor"
+    },
+    {
+     "id": "H2",
+     "statement": "Crates slide far on push; push fails if unlit or if slide path blocked (needs lit test)",
+     "status": "proposed",
+     "evidence": "e_crate_push vs x_slidewall"
+    },
+    {
+     "id": "H3",
+     "statement": "Glass sets beam color to its color (overwrite); door opens iff sensor light exactly equals door color",
+     "status": "proposed",
+     "evidence": "x_glassrow,x_colordoor"
+    },
+    {
+     "id": "H4",
+     "statement": "Walls/lamps/closed doors/crate-crate block move; open doors walkable; crates block light and lit=any light on cell",
+     "status": "proposed",
+     "evidence": "x_bump,e_sensor_door"
+    }
+   ],
+   "final": false
+  },
+  {
+   "round": 4,
+   "startedAt": "2026-11-07T22:30:23.622Z",
+   "durationMs": 109490,
+   "promptSha256": "b6bc2793fe1e9dcb7bf4ba3f504018b3dde8f8edff70b90231cc1baad1b73d59",
+   "promptChars": 23944,
+   "exitCode": null,
+   "experimentIds": [],
+   "rejectedExperiments": [],
+   "result": {
+    "provider": "meta",
+    "requestedModel": "muse-spark-1.3",
+    "attempts": 1,
+    "httpStatus": 200,
+    "model": "muse-spark-1.3",
+    "stop_reason": "max_tokens",
+    "usage": {
+     "cache_creation_input_tokens": 0,
+     "cache_read_input_tokens": 0,
+     "input_tokens": 7355,
+     "output_tokens": 16578
+    },
+    "content_block_types": [
+     "redacted_thinking"
+    ],
+    "tool_use_events": 0
+   },
+   "failure": "meta reply rejected: truncated at max_tokens=16384"
+  }
+ ],
+ "experiments": [
+  {
+   "id": "e_lamp_e",
+   "round": 1,
+   "purpose": "white lamp facing E: beam shape + basic movement",
+   "layout": {
+    "walls": [],
+    "lamps": [
+     {
+      "x": 0,
+      "y": 3,
+      "color": "white",
+      "dir": "E"
+     }
+    ],
+    "glass": [],
+    "sensors": [],
+    "doors": [],
+    "player": {
+     "x": 6,
+     "y": 6
+    },
+    "crates": []
+   },
+   "actions": [
+    "N",
+    "W"
+   ],
+   "observations": [
+    {
+     "player": {
+      "x": 6,
+      "y": 6
+     },
+     "crates": [],
+     "light": [
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "w",
+       "w",
+       "w",
+       "w",
+       "w",
+       "w"
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ]
+     ],
+     "sensors": [],
+     "doors": []
+    },
+    {
+     "player": {
+      "x": 6,
+      "y": 5
+     },
+     "crates": [],
+     "light": [
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "w",
+       "w",
+       "w",
+       "w",
+       "w",
+       "w"
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ]
+     ],
+     "sensors": [],
+     "doors": []
+    },
+    {
+     "player": {
+      "x": 5,
+      "y": 5
+     },
+     "crates": [],
+     "light": [
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "w",
+       "w",
+       "w",
+       "w",
+       "w",
+       "w"
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ]
+     ],
+     "sensors": [],
+     "doors": []
+    }
+   ]
+  },
+  {
+   "id": "e_lamp_s",
+   "round": 1,
+   "purpose": "white lamp facing S: verify column beam",
+   "layout": {
+    "walls": [],
+    "lamps": [
+     {
+      "x": 3,
+      "y": 0,
+      "color": "white",
+      "dir": "S"
+     }
+    ],
+    "glass": [],
+    "sensors": [],
+    "doors": [],
+    "player": {
+     "x": 6,
+     "y": 6
+    },
+    "crates": []
+   },
+   "actions": [
+    "N"
+   ],
+   "observations": [
+    {
+     "player": {
+      "x": 6,
+      "y": 6
+     },
+     "crates": [],
+     "light": [
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "w",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "w",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "w",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "w",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "w",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "w",
+       "",
+       "",
+       ""
+      ]
+     ],
+     "sensors": [],
+     "doors": []
+    },
+    {
+     "player": {
+      "x": 6,
+      "y": 5
+     },
+     "crates": [],
+     "light": [
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "w",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "w",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "w",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "w",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "w",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "w",
+       "",
+       "",
+       ""
+      ]
+     ],
+     "sensors": [],
+     "doors": []
+    }
+   ]
+  },
+  {
+   "id": "e_wall_block",
+   "round": 1,
+   "purpose": "does wall block light beam and movement",
+   "layout": {
+    "walls": [
+     {
+      "x": 3,
+      "y": 3
+     }
+    ],
+    "lamps": [
+     {
+      "x": 0,
+      "y": 3,
+      "color": "white",
+      "dir": "E"
+     }
+    ],
+    "glass": [],
+    "sensors": [],
+    "doors": [],
+    "player": {
+     "x": 6,
+     "y": 6
+    },
+    "crates": []
+   },
+   "actions": [
+    "N"
+   ],
+   "observations": [
+    {
+     "player": {
+      "x": 6,
+      "y": 6
+     },
+     "crates": [],
+     "light": [
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "w",
+       "w",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ]
+     ],
+     "sensors": [],
+     "doors": []
+    },
+    {
+     "player": {
+      "x": 6,
+      "y": 5
+     },
+     "crates": [],
+     "light": [
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "w",
+       "w",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ]
+     ],
+     "sensors": [],
+     "doors": []
+    }
+   ]
+  },
+  {
+   "id": "e_glass",
+   "round": 1,
+   "purpose": "white lamp through red glass: filter effect",
+   "layout": {
+    "walls": [],
+    "lamps": [
+     {
+      "x": 0,
+      "y": 3,
+      "color": "white",
+      "dir": "E"
+     }
+    ],
+    "glass": [
+     {
+      "x": 2,
+      "y": 3,
+      "color": "red"
+     }
+    ],
+    "sensors": [],
+    "doors": [],
+    "player": {
+     "x": 6,
+     "y": 6
+    },
+    "crates": []
+   },
+   "actions": [
+    "N"
+   ],
+   "observations": [
+    {
+     "player": {
+      "x": 6,
+      "y": 6
+     },
+     "crates": [],
+     "light": [
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "w",
+       "r",
+       "r",
+       "r",
+       "r",
+       "r"
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ]
+     ],
+     "sensors": [],
+     "doors": []
+    },
+    {
+     "player": {
+      "x": 6,
+      "y": 5
+     },
+     "crates": [],
+     "light": [
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "w",
+       "r",
+       "r",
+       "r",
+       "r",
+       "r"
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ]
+     ],
+     "sensors": [],
+     "doors": []
+    }
+   ]
+  },
+  {
+   "id": "e_sensor_door",
+   "round": 1,
+   "purpose": "sensor in beam linked to door elsewhere; test sensor light string and door open + walking into door",
+   "layout": {
+    "walls": [],
+    "lamps": [
+     {
+      "x": 0,
+      "y": 3,
+      "color": "white",
+      "dir": "E"
+     }
+    ],
+    "glass": [],
+    "sensors": [
+     {
+      "id": "s1",
+      "x": 5,
+      "y": 3
+     }
+    ],
+    "doors": [
+     {
+      "id": "d1",
+      "x": 1,
+      "y": 6,
+      "color": "white",
+      "sensor": "s1"
+     }
+    ],
+    "player": {
+     "x": 0,
+     "y": 6
+    },
+    "crates": []
+   },
+   "actions": [
+    "E",
+    "E"
+   ],
+   "observations": [
+    {
+     "player": {
+      "x": 0,
+      "y": 6
+     },
+     "crates": [],
+     "light": [
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "w",
+       "w",
+       "w",
+       "w",
+       "w",
+       "w"
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ]
+     ],
+     "sensors": [
+      {
+       "id": "s1",
+       "light": "w"
+      }
+     ],
+     "doors": [
+      {
+       "id": "d1",
+       "open": true
+      }
+     ]
+    },
+    {
+     "player": {
+      "x": 1,
+      "y": 6
+     },
+     "crates": [],
+     "light": [
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "w",
+       "w",
+       "w",
+       "w",
+       "w",
+       "w"
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ]
+     ],
+     "sensors": [
+      {
+       "id": "s1",
+       "light": "w"
+      }
+     ],
+     "doors": [
+      {
+       "id": "d1",
+       "open": true
+      }
+     ]
+    },
+    {
+     "player": {
+      "x": 2,
+      "y": 6
+     },
+     "crates": [],
+     "light": [
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "w",
+       "w",
+       "w",
+       "w",
+       "w",
+       "w"
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ]
+     ],
+     "sensors": [
+      {
+       "id": "s1",
+       "light": "w"
+      }
+     ],
+     "doors": [
+      {
+       "id": "d1",
+       "open": true
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "e_crate_push",
+   "round": 1,
+   "purpose": "push crate along beam; observe crate lit and movement blocking",
+   "layout": {
+    "walls": [],
+    "lamps": [
+     {
+      "x": 0,
+      "y": 3,
+      "color": "white",
+      "dir": "E"
+     }
+    ],
+    "glass": [],
+    "sensors": [],
+    "doors": [],
+    "player": {
+     "x": 2,
+     "y": 3
+    },
+    "crates": [
+     {
+      "id": "c1",
+      "x": 3,
+      "y": 3
+     }
+    ]
+   },
+   "actions": [
+    "E",
+    "E"
+   ],
+   "observations": [
+    {
+     "player": {
+      "x": 2,
+      "y": 3
+     },
+     "crates": [
+      {
+       "id": "c1",
+       "x": 3,
+       "y": 3,
+       "lit": true
+      }
+     ],
+     "light": [
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "w",
+       "w",
+       "w",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ]
+     ],
+     "sensors": [],
+     "doors": []
+    },
+    {
+     "player": {
+      "x": 3,
+      "y": 3
+     },
+     "crates": [
+      {
+       "id": "c1",
+       "x": 6,
+       "y": 3,
+       "lit": true
+      }
+     ],
+     "light": [
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "w",
+       "w",
+       "w",
+       "w",
+       "w",
+       "w"
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ]
+     ],
+     "sensors": [],
+     "doors": []
+    },
+    {
+     "player": {
+      "x": 4,
+      "y": 3
+     },
+     "crates": [
+      {
+       "id": "c1",
+       "x": 6,
+       "y": 3,
+       "lit": true
+      }
+     ],
+     "light": [
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "w",
+       "w",
+       "w",
+       "w",
+       "w",
+       "w"
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ]
+     ],
+     "sensors": [],
+     "doors": []
+    }
+   ]
+  },
+  {
+   "id": "x_mix3",
+   "round": 2,
+   "purpose": "red+green opposite plus blue crossing: additive mix and lamp blocking",
+   "layout": {
+    "walls": [],
+    "lamps": [
+     {
+      "x": 0,
+      "y": 2,
+      "color": "red",
+      "dir": "E"
+     },
+     {
+      "x": 6,
+      "y": 2,
+      "color": "green",
+      "dir": "W"
+     },
+     {
+      "x": 2,
+      "y": 0,
+      "color": "blue",
+      "dir": "S"
+     }
+    ],
+    "glass": [],
+    "sensors": [],
+    "doors": [],
+    "player": {
+     "x": 0,
+     "y": 6
+    },
+    "crates": []
+   },
+   "actions": [
+    "N"
+   ],
+   "observations": [
+    {
+     "player": {
+      "x": 0,
+      "y": 6
+     },
+     "crates": [],
+     "light": [
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "b",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "gr",
+       "bgr",
+       "gr",
+       "gr",
+       "gr",
+       ""
+      ],
+      [
+       "",
+       "",
+       "b",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "b",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "b",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "b",
+       "",
+       "",
+       "",
+       ""
+      ]
+     ],
+     "sensors": [],
+     "doors": []
+    },
+    {
+     "player": {
+      "x": 0,
+      "y": 5
+     },
+     "crates": [],
+     "light": [
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "b",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "gr",
+       "bgr",
+       "gr",
+       "gr",
+       "gr",
+       ""
+      ],
+      [
+       "",
+       "",
+       "b",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "b",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "b",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "b",
+       "",
+       "",
+       "",
+       ""
+      ]
+     ],
+     "sensors": [],
+     "doors": []
+    }
+   ]
+  },
+  {
+   "id": "x_glassrow",
+   "round": 2,
+   "purpose": "white through R then G then B in series",
+   "layout": {
+    "walls": [],
+    "lamps": [
+     {
+      "x": 0,
+      "y": 3,
+      "color": "white",
+      "dir": "E"
+     }
+    ],
+    "glass": [
+     {
+      "x": 2,
+      "y": 3,
+      "color": "red"
+     },
+     {
+      "x": 3,
+      "y": 3,
+      "color": "green"
+     },
+     {
+      "x": 4,
+      "y": 3,
+      "color": "blue"
+     }
+    ],
+    "sensors": [],
+    "doors": [],
+    "player": {
+     "x": 0,
+     "y": 6
+    },
+    "crates": []
+   },
+   "actions": [
+    "N"
+   ],
+   "observations": [
+    {
+     "player": {
+      "x": 0,
+      "y": 6
+     },
+     "crates": [],
+     "light": [
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "w",
+       "r",
+       "g",
+       "b",
+       "b",
+       "b"
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ]
+     ],
+     "sensors": [],
+     "doors": []
+    },
+    {
+     "player": {
+      "x": 0,
+      "y": 5
+     },
+     "crates": [],
+     "light": [
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "w",
+       "r",
+       "g",
+       "b",
+       "b",
+       "b"
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ]
+     ],
+     "sensors": [],
+     "doors": []
+    }
+   ]
+  },
+  {
+   "id": "x_slidewall",
+   "round": 2,
+   "purpose": "push crate toward wall: slide distance and player final pos",
+   "layout": {
+    "walls": [
+     {
+      "x": 5,
+      "y": 3
+     }
+    ],
+    "lamps": [],
+    "glass": [],
+    "sensors": [],
+    "doors": [],
+    "player": {
+     "x": 1,
+     "y": 3
+    },
+    "crates": [
+     {
+      "id": "c1",
+      "x": 2,
+      "y": 3
+     }
+    ]
+   },
+   "actions": [
+    "E",
+    "E",
+    "E"
+   ],
+   "observations": [
+    {
+     "player": {
+      "x": 1,
+      "y": 3
+     },
+     "crates": [
+      {
+       "id": "c1",
+       "x": 2,
+       "y": 3,
+       "lit": false
+      }
+     ],
+     "light": [
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ]
+     ],
+     "sensors": [],
+     "doors": []
+    },
+    {
+     "player": {
+      "x": 1,
+      "y": 3
+     },
+     "crates": [
+      {
+       "id": "c1",
+       "x": 2,
+       "y": 3,
+       "lit": false
+      }
+     ],
+     "light": [
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ]
+     ],
+     "sensors": [],
+     "doors": []
+    },
+    {
+     "player": {
+      "x": 1,
+      "y": 3
+     },
+     "crates": [
+      {
+       "id": "c1",
+       "x": 2,
+       "y": 3,
+       "lit": false
+      }
+     ],
+     "light": [
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ]
+     ],
+     "sensors": [],
+     "doors": []
+    },
+    {
+     "player": {
+      "x": 1,
+      "y": 3
+     },
+     "crates": [
+      {
+       "id": "c1",
+       "x": 2,
+       "y": 3,
+       "lit": false
+      }
+     ],
+     "light": [
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ]
+     ],
+     "sensors": [],
+     "doors": []
+    }
+   ]
+  },
+  {
+   "id": "x_colordoor",
+   "round": 2,
+   "purpose": "red light on 3 sensors with red/blue/white doors: color match rule",
+   "layout": {
+    "walls": [],
+    "lamps": [
+     {
+      "x": 0,
+      "y": 0,
+      "color": "red",
+      "dir": "E"
+     }
+    ],
+    "glass": [],
+    "sensors": [
+     {
+      "id": "s1",
+      "x": 2,
+      "y": 0
+     },
+     {
+      "id": "s2",
+      "x": 4,
+      "y": 0
+     },
+     {
+      "id": "s3",
+      "x": 5,
+      "y": 0
+     }
+    ],
+    "doors": [
+     {
+      "id": "d1",
+      "x": 0,
+      "y": 6,
+      "color": "red",
+      "sensor": "s1"
+     },
+     {
+      "id": "d2",
+      "x": 1,
+      "y": 6,
+      "color": "blue",
+      "sensor": "s2"
+     },
+     {
+      "id": "d3",
+      "x": 2,
+      "y": 6,
+      "color": "white",
+      "sensor": "s3"
+     }
+    ],
+    "player": {
+     "x": 6,
+     "y": 6
+    },
+    "crates": []
+   },
+   "actions": [
+    "N"
+   ],
+   "observations": [
+    {
+     "player": {
+      "x": 6,
+      "y": 6
+     },
+     "crates": [],
+     "light": [
+      [
+       "",
+       "r",
+       "r",
+       "r",
+       "r",
+       "r",
+       "r"
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ]
+     ],
+     "sensors": [
+      {
+       "id": "s1",
+       "light": "r"
+      },
+      {
+       "id": "s2",
+       "light": "r"
+      },
+      {
+       "id": "s3",
+       "light": "r"
+      }
+     ],
+     "doors": [
+      {
+       "id": "d1",
+       "open": true
+      },
+      {
+       "id": "d2",
+       "open": false
+      },
+      {
+       "id": "d3",
+       "open": false
+      }
+     ]
+    },
+    {
+     "player": {
+      "x": 6,
+      "y": 5
+     },
+     "crates": [],
+     "light": [
+      [
+       "",
+       "r",
+       "r",
+       "r",
+       "r",
+       "r",
+       "r"
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ]
+     ],
+     "sensors": [
+      {
+       "id": "s1",
+       "light": "r"
+      },
+      {
+       "id": "s2",
+       "light": "r"
+      },
+      {
+       "id": "s3",
+       "light": "r"
+      }
+     ],
+     "doors": [
+      {
+       "id": "d1",
+       "open": true
+      },
+      {
+       "id": "d2",
+       "open": false
+      },
+      {
+       "id": "d3",
+       "open": false
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "x_pblock",
+   "round": 2,
+   "purpose": "player starts in beam then steps out: does player block sensor",
+   "layout": {
+    "walls": [],
+    "lamps": [
+     {
+      "x": 0,
+      "y": 3,
+      "color": "white",
+      "dir": "E"
+     }
+    ],
+    "glass": [],
+    "sensors": [
+     {
+      "id": "s1",
+      "x": 5,
+      "y": 3
+     }
+    ],
+    "doors": [
+     {
+      "id": "d1",
+      "x": 6,
+      "y": 6,
+      "color": "white",
+      "sensor": "s1"
+     }
+    ],
+    "player": {
+     "x": 3,
+     "y": 3
+    },
+    "crates": []
+   },
+   "actions": [
+    "N"
+   ],
+   "observations": [
+    {
+     "player": {
+      "x": 3,
+      "y": 3
+     },
+     "crates": [],
+     "light": [
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "w",
+       "w",
+       "w",
+       "w",
+       "w",
+       "w"
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ]
+     ],
+     "sensors": [
+      {
+       "id": "s1",
+       "light": "w"
+      }
+     ],
+     "doors": [
+      {
+       "id": "d1",
+       "open": true
+      }
+     ]
+    },
+    {
+     "player": {
+      "x": 3,
+      "y": 2
+     },
+     "crates": [],
+     "light": [
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "w",
+       "w",
+       "w",
+       "w",
+       "w",
+       "w"
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ]
+     ],
+     "sensors": [
+      {
+       "id": "s1",
+       "light": "w"
+      }
+     ],
+     "doors": [
+      {
+       "id": "d1",
+       "open": true
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "x_bump",
+   "round": 2,
+   "purpose": "bump wall/lamp/closed door/crate-crate from center",
+   "layout": {
+    "walls": [
+     {
+      "x": 3,
+      "y": 2
+     }
+    ],
+    "lamps": [
+     {
+      "x": 3,
+      "y": 4,
+      "color": "white",
+      "dir": "N"
+     }
+    ],
+    "glass": [],
+    "sensors": [
+     {
+      "id": "s1",
+      "x": 6,
+      "y": 6
+     }
+    ],
+    "doors": [
+     {
+      "id": "d1",
+      "x": 2,
+      "y": 3,
+      "color": "white",
+      "sensor": "s1"
+     }
+    ],
+    "player": {
+     "x": 3,
+     "y": 3
+    },
+    "crates": [
+     {
+      "id": "c1",
+      "x": 4,
+      "y": 3
+     },
+     {
+      "id": "c2",
+      "x": 5,
+      "y": 3
+     }
+    ]
+   },
+   "actions": [
+    "N",
+    "S",
+    "W",
+    "E"
+   ],
+   "observations": [
+    {
+     "player": {
+      "x": 3,
+      "y": 3
+     },
+     "crates": [
+      {
+       "id": "c1",
+       "x": 4,
+       "y": 3,
+       "lit": false
+      },
+      {
+       "id": "c2",
+       "x": 5,
+       "y": 3,
+       "lit": false
+      }
+     ],
+     "light": [
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "w",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ]
+     ],
+     "sensors": [
+      {
+       "id": "s1",
+       "light": ""
+      }
+     ],
+     "doors": [
+      {
+       "id": "d1",
+       "open": false
+      }
+     ]
+    },
+    {
+     "player": {
+      "x": 3,
+      "y": 3
+     },
+     "crates": [
+      {
+       "id": "c1",
+       "x": 4,
+       "y": 3,
+       "lit": false
+      },
+      {
+       "id": "c2",
+       "x": 5,
+       "y": 3,
+       "lit": false
+      }
+     ],
+     "light": [
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "w",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ]
+     ],
+     "sensors": [
+      {
+       "id": "s1",
+       "light": ""
+      }
+     ],
+     "doors": [
+      {
+       "id": "d1",
+       "open": false
+      }
+     ]
+    },
+    {
+     "player": {
+      "x": 3,
+      "y": 3
+     },
+     "crates": [
+      {
+       "id": "c1",
+       "x": 4,
+       "y": 3,
+       "lit": false
+      },
+      {
+       "id": "c2",
+       "x": 5,
+       "y": 3,
+       "lit": false
+      }
+     ],
+     "light": [
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "w",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ]
+     ],
+     "sensors": [
+      {
+       "id": "s1",
+       "light": ""
+      }
+     ],
+     "doors": [
+      {
+       "id": "d1",
+       "open": false
+      }
+     ]
+    },
+    {
+     "player": {
+      "x": 3,
+      "y": 3
+     },
+     "crates": [
+      {
+       "id": "c1",
+       "x": 4,
+       "y": 3,
+       "lit": false
+      },
+      {
+       "id": "c2",
+       "x": 5,
+       "y": 3,
+       "lit": false
+      }
+     ],
+     "light": [
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "w",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ]
+     ],
+     "sensors": [
+      {
+       "id": "s1",
+       "light": ""
+      }
+     ],
+     "doors": [
+      {
+       "id": "d1",
+       "open": false
+      }
+     ]
+    },
+    {
+     "player": {
+      "x": 3,
+      "y": 3
+     },
+     "crates": [
+      {
+       "id": "c1",
+       "x": 4,
+       "y": 3,
+       "lit": false
+      },
+      {
+       "id": "c2",
+       "x": 5,
+       "y": 3,
+       "lit": false
+      }
+     ],
+     "light": [
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "w",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ]
+     ],
+     "sensors": [
+      {
+       "id": "s1",
+       "light": ""
+      }
+     ],
+     "doors": [
+      {
+       "id": "d1",
+       "open": false
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "t_push_dark",
+   "round": 3,
+   "purpose": "does unlit crate with clear path move",
+   "layout": {
+    "walls": [],
+    "lamps": [],
+    "glass": [],
+    "sensors": [],
+    "doors": [],
+    "player": {
+     "x": 1,
+     "y": 3
+    },
+    "crates": [
+     {
+      "id": "c1",
+      "x": 2,
+      "y": 3
+     }
+    ]
+   },
+   "actions": [
+    "E",
+    "E"
+   ],
+   "observations": [
+    {
+     "player": {
+      "x": 1,
+      "y": 3
+     },
+     "crates": [
+      {
+       "id": "c1",
+       "x": 2,
+       "y": 3,
+       "lit": false
+      }
+     ],
+     "light": [
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ]
+     ],
+     "sensors": [],
+     "doors": []
+    },
+    {
+     "player": {
+      "x": 1,
+      "y": 3
+     },
+     "crates": [
+      {
+       "id": "c1",
+       "x": 2,
+       "y": 3,
+       "lit": false
+      }
+     ],
+     "light": [
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ]
+     ],
+     "sensors": [],
+     "doors": []
+    },
+    {
+     "player": {
+      "x": 1,
+      "y": 3
+     },
+     "crates": [
+      {
+       "id": "c1",
+       "x": 2,
+       "y": 3,
+       "lit": false
+      }
+     ],
+     "light": [
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ]
+     ],
+     "sensors": [],
+     "doors": []
+    }
+   ]
+  },
+  {
+   "id": "t_push_litwall",
+   "round": 3,
+   "purpose": "lit crate push toward wall, slide vs stuck",
+   "layout": {
+    "walls": [
+     {
+      "x": 5,
+      "y": 3
+     }
+    ],
+    "lamps": [
+     {
+      "x": 0,
+      "y": 3,
+      "color": "white",
+      "dir": "E"
+     }
+    ],
+    "glass": [],
+    "sensors": [],
+    "doors": [],
+    "player": {
+     "x": 1,
+     "y": 3
+    },
+    "crates": [
+     {
+      "id": "c1",
+      "x": 2,
+      "y": 3
+     }
+    ]
+   },
+   "actions": [
+    "E"
+   ],
+   "observations": [
+    {
+     "player": {
+      "x": 1,
+      "y": 3
+     },
+     "crates": [
+      {
+       "id": "c1",
+       "x": 2,
+       "y": 3,
+       "lit": true
+      }
+     ],
+     "light": [
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "w",
+       "w",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ]
+     ],
+     "sensors": [],
+     "doors": []
+    },
+    {
+     "player": {
+      "x": 2,
+      "y": 3
+     },
+     "crates": [
+      {
+       "id": "c1",
+       "x": 4,
+       "y": 3,
+       "lit": true
+      }
+     ],
+     "light": [
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "w",
+       "w",
+       "w",
+       "w",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ]
+     ],
+     "sensors": [],
+     "doors": []
+    }
+   ]
+  },
+  {
+   "id": "t_glass_rg",
+   "round": 3,
+   "purpose": "red beam through green then blue glass plus lit flag on colored crate",
+   "layout": {
+    "walls": [],
+    "lamps": [
+     {
+      "x": 0,
+      "y": 3,
+      "color": "red",
+      "dir": "E"
+     }
+    ],
+    "glass": [
+     {
+      "x": 2,
+      "y": 3,
+      "color": "green"
+     },
+     {
+      "x": 4,
+      "y": 3,
+      "color": "blue"
+     }
+    ],
+    "sensors": [],
+    "doors": [],
+    "player": {
+     "x": 0,
+     "y": 6
+    },
+    "crates": [
+     {
+      "id": "c1",
+      "x": 6,
+      "y": 3
+     }
+    ]
+   },
+   "actions": [
+    "N"
+   ],
+   "observations": [
+    {
+     "player": {
+      "x": 0,
+      "y": 6
+     },
+     "crates": [
+      {
+       "id": "c1",
+       "x": 6,
+       "y": 3,
+       "lit": true
+      }
+     ],
+     "light": [
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "r",
+       "g",
+       "g",
+       "b",
+       "b",
+       "b"
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ]
+     ],
+     "sensors": [],
+     "doors": []
+    },
+    {
+     "player": {
+      "x": 0,
+      "y": 5
+     },
+     "crates": [
+      {
+       "id": "c1",
+       "x": 6,
+       "y": 3,
+       "lit": true
+      }
+     ],
+     "light": [
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "r",
+       "g",
+       "g",
+       "b",
+       "b",
+       "b"
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ]
+     ],
+     "sensors": [],
+     "doors": []
+    }
+   ]
+  },
+  {
+   "id": "t_white_doors",
+   "round": 3,
+   "purpose": "white light on red blue white doors",
+   "layout": {
+    "walls": [],
+    "lamps": [
+     {
+      "x": 0,
+      "y": 0,
+      "color": "white",
+      "dir": "E"
+     }
+    ],
+    "glass": [],
+    "sensors": [
+     {
+      "id": "s1",
+      "x": 2,
+      "y": 0
+     },
+     {
+      "id": "s2",
+      "x": 4,
+      "y": 0
+     },
+     {
+      "id": "s3",
+      "x": 5,
+      "y": 0
+     }
+    ],
+    "doors": [
+     {
+      "id": "d1",
+      "x": 0,
+      "y": 6,
+      "color": "red",
+      "sensor": "s1"
+     },
+     {
+      "id": "d2",
+      "x": 1,
+      "y": 6,
+      "color": "blue",
+      "sensor": "s2"
+     },
+     {
+      "id": "d3",
+      "x": 2,
+      "y": 6,
+      "color": "white",
+      "sensor": "s3"
+     }
+    ],
+    "player": {
+     "x": 6,
+     "y": 6
+    },
+    "crates": []
+   },
+   "actions": [
+    "N"
+   ],
+   "observations": [
+    {
+     "player": {
+      "x": 6,
+      "y": 6
+     },
+     "crates": [],
+     "light": [
+      [
+       "",
+       "w",
+       "w",
+       "w",
+       "w",
+       "w",
+       "w"
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ]
+     ],
+     "sensors": [
+      {
+       "id": "s1",
+       "light": "w"
+      },
+      {
+       "id": "s2",
+       "light": "w"
+      },
+      {
+       "id": "s3",
+       "light": "w"
+      }
+     ],
+     "doors": [
+      {
+       "id": "d1",
+       "open": false
+      },
+      {
+       "id": "d2",
+       "open": false
+      },
+      {
+       "id": "d3",
+       "open": true
+      }
+     ]
+    },
+    {
+     "player": {
+      "x": 6,
+      "y": 5
+     },
+     "crates": [],
+     "light": [
+      [
+       "",
+       "w",
+       "w",
+       "w",
+       "w",
+       "w",
+       "w"
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ]
+     ],
+     "sensors": [
+      {
+       "id": "s1",
+       "light": "w"
+      },
+      {
+       "id": "s2",
+       "light": "w"
+      },
+      {
+       "id": "s3",
+       "light": "w"
+      }
+     ],
+     "doors": [
+      {
+       "id": "d1",
+       "open": false
+      },
+      {
+       "id": "d2",
+       "open": false
+      },
+      {
+       "id": "d3",
+       "open": true
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "t_mix_door",
+   "round": 3,
+   "purpose": "red+green overlap gr on red green white doors, also sensor transparency",
+   "layout": {
+    "walls": [],
+    "lamps": [
+     {
+      "x": 0,
+      "y": 2,
+      "color": "red",
+      "dir": "E"
+     },
+     {
+      "x": 6,
+      "y": 2,
+      "color": "green",
+      "dir": "W"
+     }
+    ],
+    "glass": [],
+    "sensors": [
+     {
+      "id": "s1",
+      "x": 2,
+      "y": 2
+     },
+     {
+      "id": "s2",
+      "x": 3,
+      "y": 2
+     },
+     {
+      "id": "s3",
+      "x": 4,
+      "y": 2
+     }
+    ],
+    "doors": [
+     {
+      "id": "d1",
+      "x": 0,
+      "y": 6,
+      "color": "red",
+      "sensor": "s1"
+     },
+     {
+      "id": "d2",
+      "x": 1,
+      "y": 6,
+      "color": "green",
+      "sensor": "s2"
+     },
+     {
+      "id": "d3",
+      "x": 2,
+      "y": 6,
+      "color": "white",
+      "sensor": "s3"
+     }
+    ],
+    "player": {
+     "x": 6,
+     "y": 6
+    },
+    "crates": []
+   },
+   "actions": [
+    "N"
+   ],
+   "observations": [
+    {
+     "player": {
+      "x": 6,
+      "y": 6
+     },
+     "crates": [],
+     "light": [
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "gr",
+       "gr",
+       "gr",
+       "gr",
+       "gr",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ]
+     ],
+     "sensors": [
+      {
+       "id": "s1",
+       "light": "gr"
+      },
+      {
+       "id": "s2",
+       "light": "gr"
+      },
+      {
+       "id": "s3",
+       "light": "gr"
+      }
+     ],
+     "doors": [
+      {
+       "id": "d1",
+       "open": true
+      },
+      {
+       "id": "d2",
+       "open": true
+      },
+      {
+       "id": "d3",
+       "open": false
+      }
+     ]
+    },
+    {
+     "player": {
+      "x": 6,
+      "y": 5
+     },
+     "crates": [],
+     "light": [
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "gr",
+       "gr",
+       "gr",
+       "gr",
+       "gr",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ]
+     ],
+     "sensors": [
+      {
+       "id": "s1",
+       "light": "gr"
+      },
+      {
+       "id": "s2",
+       "light": "gr"
+      },
+      {
+       "id": "s3",
+       "light": "gr"
+      }
+     ],
+     "doors": [
+      {
+       "id": "d1",
+       "open": true
+      },
+      {
+       "id": "d2",
+       "open": true
+      },
+      {
+       "id": "d3",
+       "open": false
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "t_doorblock",
+   "round": 3,
+   "purpose": "do closed vs open doors block beam",
+   "layout": {
+    "walls": [],
+    "lamps": [
+     {
+      "x": 0,
+      "y": 1,
+      "color": "white",
+      "dir": "E"
+     },
+     {
+      "x": 0,
+      "y": 3,
+      "color": "white",
+      "dir": "E"
+     },
+     {
+      "x": 0,
+      "y": 5,
+      "color": "white",
+      "dir": "E"
+     }
+    ],
+    "glass": [],
+    "sensors": [
+     {
+      "id": "s_dark",
+      "x": 6,
+      "y": 6
+     },
+     {
+      "id": "s_trig",
+      "x": 1,
+      "y": 5
+     },
+     {
+      "id": "s_behC",
+      "x": 4,
+      "y": 1
+     },
+     {
+      "id": "s_behO",
+      "x": 4,
+      "y": 3
+     }
+    ],
+    "doors": [
+     {
+      "id": "d_c",
+      "x": 2,
+      "y": 1,
+      "color": "white",
+      "sensor": "s_dark"
+     },
+     {
+      "id": "d_o",
+      "x": 2,
+      "y": 3,
+      "color": "white",
+      "sensor": "s_trig"
+     },
+     {
+      "id": "d_x",
+      "x": 5,
+      "y": 6,
+      "color": "white",
+      "sensor": "s_behC"
+     },
+     {
+      "id": "d_y",
+      "x": 6,
+      "y": 0,
+      "color": "white",
+      "sensor": "s_behO"
+     }
+    ],
+    "player": {
+     "x": 0,
+     "y": 6
+    },
+    "crates": []
+   },
+   "actions": [
+    "N"
+   ],
+   "observations": [
+    {
+     "player": {
+      "x": 0,
+      "y": 6
+     },
+     "crates": [],
+     "light": [
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "w",
+       "w",
+       "w",
+       "w",
+       "w",
+       "w"
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "w",
+       "w",
+       "w",
+       "w",
+       "w",
+       "w"
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "w",
+       "w",
+       "w",
+       "w",
+       "w",
+       "w"
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ]
+     ],
+     "sensors": [
+      {
+       "id": "s_dark",
+       "light": ""
+      },
+      {
+       "id": "s_trig",
+       "light": "w"
+      },
+      {
+       "id": "s_behC",
+       "light": "w"
+      },
+      {
+       "id": "s_behO",
+       "light": "w"
+      }
+     ],
+     "doors": [
+      {
+       "id": "d_c",
+       "open": false
+      },
+      {
+       "id": "d_o",
+       "open": true
+      },
+      {
+       "id": "d_x",
+       "open": true
+      },
+      {
+       "id": "d_y",
+       "open": true
+      }
+     ]
+    },
+    {
+     "player": {
+      "x": 0,
+      "y": 6
+     },
+     "crates": [],
+     "light": [
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "w",
+       "w",
+       "w",
+       "w",
+       "w",
+       "w"
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "w",
+       "w",
+       "w",
+       "w",
+       "w",
+       "w"
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ],
+      [
+       "",
+       "w",
+       "w",
+       "w",
+       "w",
+       "w",
+       "w"
+      ],
+      [
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       ""
+      ]
+     ],
+     "sensors": [
+      {
+       "id": "s_dark",
+       "light": ""
+      },
+      {
+       "id": "s_trig",
+       "light": "w"
+      },
+      {
+       "id": "s_behC",
+       "light": "w"
+      },
+      {
+       "id": "s_behO",
+       "light": "w"
+      }
+     ],
+     "doors": [
+      {
+       "id": "d_c",
+       "open": false
+      },
+      {
+       "id": "d_o",
+       "open": true
+      },
+      {
+       "id": "d_x",
+       "open": true
+      },
+      {
+       "id": "d_y",
+       "open": true
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "codeVersions": [],
+ "finalCodeVersion": null
+}

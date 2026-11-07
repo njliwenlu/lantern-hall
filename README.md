@@ -6,6 +6,8 @@
 
 *A museum of impossible physics.* An AI discovers hidden rules through experiments, then writes an executable reconstruction of the world.
 
+[Explore the independent Muse Spark run →](https://njliwenlu.github.io/lantern-hall/?run=muse-spark-03) · 49 experiments; frozen code matched 48/48 held-out scenarios (331/331 observations). The video and speech below follow the original Claude run.
+
 ## 60-second demo pitch
 
 **0–5s · The challenge**  

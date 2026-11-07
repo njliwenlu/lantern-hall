@@ -3,6 +3,7 @@ import { DiscoverView } from "./DiscoverView.tsx";
 import { ReconstructView } from "./ReconstructView.tsx";
 import { PredictView } from "./PredictView.tsx";
 import { Evidence } from "./Evidence.tsx";
+import { DEFAULT_RUN_ID, primaryRun, readyRuns, runSelectionNotice } from "./data.ts";
 import { hooks, initialParams } from "./hooks.ts";
 
 type Tab = "discover" | "reconstruct" | "predict";
@@ -82,6 +83,7 @@ export default function App() {
 
       </section>
 
+      {runSelectionNotice && <p className="lh-small" role="status">{runSelectionNotice}</p>}
       <main className="lh-main">
         {tab === "discover" && <DiscoverView present={present} />}
         {tab === "reconstruct" && <ReconstructView present={present} />}
@@ -90,8 +92,11 @@ export default function App() {
 
       {!present && (
         <footer className="lh-footer">
+          {readyRuns.length >= 2 && <label className="lh-run-picker">Recorded run <select aria-label="Recorded run" value={primaryRun?.runId} onChange={(e) => {
+            window.location.search = e.target.value === DEFAULT_RUN_ID ? "" : `?run=${encodeURIComponent(e.target.value)}`;
+          }}>{readyRuns.map((run) => <option key={run.runId} value={run.runId}>{run.runId} · {run.model}</option>)}</select></label>}
           <button className="lh-evidence-link" onClick={() => setEvidence(true)}>View experiment evidence</button>
-          <span>Rules were withheld from the model during the recorded run; they are public here afterwards.</span>
+          <span>{primaryRun?.provider === "meta" ? "Original rules and held-out traces were not supplied to this model; they were already public when this run began." : "Rules were withheld from the model during the recorded run; they are public here afterwards."}</span>
           <span>Agreement is measured on the tests shown, not proven in general.</span>
         </footer>
       )}
