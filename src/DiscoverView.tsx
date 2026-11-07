@@ -17,7 +17,7 @@ export function DiscoverView({ present }: { present: boolean }) {
   const exp = exps.find((e) => e.id === expId) ?? exps.find((e) => !e.error) ?? exps[0];
   const [step, setStep] = useState(Number(initialParams.step) || 0);
   const count = exp?.observations?.length ?? 0;
-  const auto = useAutoplay(initialParams.manualClock ? 0 : count, step, setStep);
+  const auto = useAutoplay(count, step, setStep);
 
   useEffect(() => {
     hooks.discover = { setRound: (n: number) => { setRound(n); setShowAll(true); }, setExp: (id: string) => { setExpId(id); setShowAll(true); }, setGuidedExperiment: (id: string) => { if (!["darkCrateLitPlayer", "litCrateDarkPlayer"].includes(id)) return; setRound(2); setExpId(id); setShowAll(false); setStep(0); }, setStep };
@@ -46,7 +46,14 @@ export function DiscoverView({ present }: { present: boolean }) {
           <div className="lh-kicker">A two-experiment discovery</div>
           <h2 className="lh-h2 is-small">What makes a crate move?</h2>
           <p>The model suspected the visitor needed to stand in light. Two experiments put that idea to the test.</p>
-          <button className="lh-primary" onClick={() => { setShowAll(false); setRound(2); setExpId(exp?.id === "litCrateDarkPlayer" ? "litCrateDarkPlayer" : "darkCrateLitPlayer"); setStep(0); if (!auto.playing) auto.toggle(); }}>{exp?.id === "litCrateDarkPlayer" ? "Watch this experiment" : "Watch the discovery"} <span aria-hidden="true">↗</span></button>
+          <button className="lh-primary" onClick={() => { if (!auto.playing) setStep(0); auto.toggle(); }}>{auto.playing ? "Pause experiment" : step > 0 ? "Replay experiment" : exp?.id === "litCrateDarkPlayer" ? "Watch this experiment" : "Watch the discovery"} <span aria-hidden="true">{auto.playing ? "Ⅱ" : "▶"}</span></button>
+          <p className="lh-play-feedback" role="status">
+            {step > 0
+              ? exp?.id === "darkCrateLitPlayer"
+                ? `${step === count - 1 ? "Both pushes" : "Push 1"} blocked. The dark crate did not move.${step === count - 1 ? " Try lighting the crate next." : ""}`
+                : "The lit crate slid, even though the visitor started in darkness."
+              : auto.playing ? "Playing: the visitor is trying to push the crate…" : "Press Watch to replay two push attempts. A blocked push leaves the board still."}
+          </p>
           <ol className="lh-story-steps">
             <li className={exp?.id === "darkCrateLitPlayer" ? "is-current" : ""}>Light on the visitor.<small>The crate stays dark.</small></li>
             <li className={exp?.id === "litCrateDarkPlayer" ? "is-current" : ""}>Light on the crate.<small>The visitor stays dark.</small></li>

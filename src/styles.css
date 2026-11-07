@@ -462,3 +462,6 @@ button:focus-visible,a:focus-visible,summary:focus-visible { outline:2px solid v
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation:none !important; transition:none !important; }
 }
+
+/* Explain a recorded blocked push without inventing physical movement. */
+.lh-guidance .lh-play-feedback { border-left:2px solid var(--gold); padding-left:12px; margin:14px 0; font-size:14px; color:var(--text); }

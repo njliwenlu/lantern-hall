@@ -6,7 +6,7 @@ export interface Auto {
   toggle: () => void;
 }
 
-/** Step autoplay with a fixed cadence (deterministic order; disabled with ?clock=manual). */
+/** Step autoplay with a fixed cadence (deterministic order; timers start only after an explicit Play). */
 export function useAutoplay(count: number, step: number, setStep: (n: number) => void): Auto {
   const [playing, setPlaying] = useState(false);
   useEffect(() => {

@@ -4,7 +4,7 @@
 //   &tab=discover|reconstruct|predict
 //   &round=3&exp=<id>&step=2     (discover)   &version=4&trace=E3 (reconstruct)
 //   &preset=prism&actions=NENN&autoplay=seal&revealDelay=1800       (predict)
-//   &clock=manual         disables all autoplay timers; drive via window.lantern
+//   &clock=manual         starts paused for scripted replay; explicit Play/Watch still works
 // window.lantern exposes: setTab, discover.{setRound,setExp,setStep}, predict.{seal,reveal,reset,setStep,loadPreset}
 const q = typeof window === "undefined" ? new URLSearchParams() : new URLSearchParams(window.location.search);
 
