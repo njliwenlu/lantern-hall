@@ -6,23 +6,25 @@
 
 *A museum of impossible physics.* Claude and Meta’s Muse Spark independently discover hidden rules through experiments, then write executable reconstructions. Both frozen engines matched all 48 held-out scenarios: 331/331 observations.
 
-## 60-second speech
+## One-minute speech
 
-We hid a game’s source code. Could AI rebuild it?
+EvoArena: Lantern Hall turns software archaeology into a playable mystery.
 
-Claude guessed the visitor, its character, needs light to push. Visitor lit, crate dark: nothing. Visitor dark, crate lit: it slides. So Claude rejected its hypothesis.
+We gave Claude and Meta’s Muse Spark the same strange world—but hid its source code. Each explored independently.
 
-Two of thirty-six experiments. Here are six more. Five distinct implementations. We froze the final code.
+Watch Claude’s discovery. Lit character, dark crate—nothing. Dark character, lit crate—it slides. The crate needed light, not the character.
 
-Now challenge it with another room. Seal its prediction before running the original. Reveal both: seven of seven observations match.
+Muse’s first version left a crate trapped in a closed doorway. An experiment showed it could slide out—so Muse corrected its code.
 
-Then forty-eight held-out scenarios, never shown to the AI. All three hundred thirty-one observations matched. Here’s one replay.
+Both built working versions of the world.
 
-Next, Meta’s Muse Spark explored independently. Forty-nine experiments, its own code. All forty-eight held-out scenarios matched again.
+Now challenge them yourself. Choose a room, lock in a prediction, and watch it beside the original.
 
-One small world, not general proof. Hidden rules, rebuilt as code.
+We tested both on 48 separate challenges. Both matched every one.
 
-*Exact spoken words for the 59.5-second video. Discovery is recorded; Predict executes both engines in your browser. Selected experiments and one held-out replay appear in the video. The same test corpus was withheld from both models’ inputs, but was already public by the later Muse run. This is a small experiment, not a general benchmark.*
+No source code. Just experiments. Two AIs rebuilt the software behind the mystery.
+
+*The video link above is stable. The revised voiceover cut is being synchronized to this speech. Discovery is recorded; Predict runs both engines in your browser. The same evaluation scenarios were withheld from both models’ inputs, but were already public by the later Muse run.*
 
 ## Run locally
 
